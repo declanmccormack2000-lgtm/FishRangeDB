@@ -1,0 +1,138 @@
+/* McCormack Marine Institute design tokens. There is one theme. */
+:root {
+  --header-green: #003d00;
+  --on-header: #ffffff;
+  --surface-mint: #d8ffd8;
+  --surface: #ffffff;
+  --ink: #333333;
+  --ink-document: #000000;
+  --ink-muted: #666666;
+  --link: #337ab7;
+  --link-hover: #23527c;
+  --rule: #cccccc;
+  --rule-strong: #808080;
+  --border-subtle: #eeeeee;
+  --control: #f0f0f0;
+  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --serif: "Times New Roman", Times, serif;
+}
+
+html { scroll-padding-top: 100px; }
+body {
+  margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+  background: var(--surface-mint); color: var(--ink);
+  font-family: var(--sans); font-size: 14px; line-height: 20px;
+}
+a { color: var(--link); }
+a:hover, a:focus-visible { color: var(--link-hover); }
+:focus-visible { outline: 2px solid var(--link-hover); outline-offset: 1px; }
+
+.site-header {
+  position: sticky; top: 0; z-index: 10; box-sizing: border-box; min-height: 85px; padding: 0 32px;
+  background: var(--header-green); display: flex; flex-wrap: wrap; gap: 12px 32px;
+  align-items: center; justify-content: space-between;
+}
+.site-header nav { display: flex; flex-wrap: wrap; gap: 2px; }
+.site-title { margin: 0; font-size: 18px; line-height: 1.2; font-weight: 700; }
+.site-title a { color: var(--on-header); text-decoration: none; }
+.site-title a:focus-visible { outline-color: var(--on-header); }
+
+.btn {
+  display: inline-block; min-height: 24px; box-sizing: border-box; font-family: var(--sans); font-size: 13.33px;
+  line-height: 20px; background: var(--control); color: var(--ink); border: 1px solid var(--rule-strong);
+  border-radius: 0; padding: 1px 6px; text-decoration: none; cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+.btn:disabled { color: var(--ink-muted); cursor: default; }
+.site-header .btn:focus-visible { outline-color: var(--on-header); color: var(--ink); }
+
+.column {
+  flex-grow: 1; box-sizing: border-box; width: 100%; max-width: 722px; margin: 0 auto;
+  padding: 28px 16px 32px; display: flex; flex-direction: column; gap: 15px;
+}
+#record { display: flex; flex-direction: column; gap: 15px; }
+
+.page-head { text-align: center; }
+.page-head h1 { margin: 0 0 4px; font-size: 25px; line-height: 1.2; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+.page-head p { margin: 0; }
+
+.search-form { display: flex; flex-wrap: wrap; gap: 8px 15px; align-items: flex-end; justify-content: center; margin: 4px 0 8px; }
+.field { display: flex; flex-direction: column; flex: 0 1 170px; min-width: 0; }
+.field.grow { flex: 1 1 260px; max-width: 340px; }
+input, select {
+  box-sizing: border-box; width: 100%; min-height: 24px; font: inherit; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 0; padding: 1px 6px;
+}
+select { padding: 1px 2px; }
+
+.panel {
+  box-sizing: border-box; width: 100%; padding: 12px 16px; background: var(--surface);
+  color: var(--ink-document); font-family: var(--serif); font-size: 16px; line-height: 1.35;
+}
+.panel h2 { margin: 0 0 14px; padding-bottom: 7px; font-size: 24px; line-height: 1.25; font-weight: 700; border-bottom: 3px solid var(--rule); }
+.panel h3 { margin: 14px 0 6px; font-size: 18px; line-height: 1.3; font-weight: 700; }
+.panel p { margin: 0 0 10px; }
+.panel > :last-child { margin-bottom: 0; }
+.panel code { font-size: 14px; }
+.panel .frame + p, .panel .scroll + p, .panel figure + p { margin-top: 10px; }
+
+.scroll { overflow-x: auto; }
+.frame { background: var(--ink-muted); padding: 1px; }
+.frame table { width: 100%; border-collapse: separate; border-spacing: 1px; }
+th, td { background: var(--surface); padding: 5px; text-align: left; vertical-align: top; }
+th { font-weight: 700; }
+tr.z td { background: var(--border-subtle); }
+td.d { white-space: nowrap; width: 1%; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+th button {
+  all: unset; cursor: pointer; font-weight: 700; color: var(--ink-document); text-decoration: underline;
+}
+th button:focus-visible { outline: 2px solid var(--link-hover); outline-offset: 1px; }
+
+.labels { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 15px; }
+.labels dt { font-weight: 700; }
+.labels dd { margin: 0; }
+
+figure { margin: 0 0 12px; }
+figcaption { margin-top: 4px; color: var(--ink-muted); font-size: 14px; line-height: 1.3; }
+details { margin-top: 10px; }
+summary { cursor: pointer; }
+
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; }
+.tip {
+  position: absolute; z-index: 5; pointer-events: none; display: none; white-space: nowrap;
+  background: var(--surface); border: 1px solid var(--rule-strong); padding: 2px 6px;
+  font-family: var(--serif); font-size: 14px; line-height: 1.3; color: var(--ink-document);
+}
+
+.controls {
+  display: flex; flex-wrap: wrap; gap: 8px 15px; align-items: flex-end; margin-bottom: 10px;
+  font-family: var(--sans); font-size: 14px; line-height: 20px; color: var(--ink);
+}
+.controls .field { flex: 1 1 130px; }
+
+.map { position: relative; border: 1px solid var(--rule-strong); line-height: 0; }
+.map canvas { display: block; width: 100%; height: auto; cursor: crosshair; }
+.legend {
+  display: flex; flex-wrap: wrap; gap: 2px 14px; margin-top: 6px;
+  color: var(--ink-muted); font-size: 14px; line-height: 1.3;
+}
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { display: inline-block; width: 12px; height: 12px; }
+
+.pager { display: flex; gap: 8px; align-items: center; justify-content: center; }
+.pager:empty { display: none; }
+
+.site-footer {
+  box-sizing: border-box; padding: 12px 32px; background: var(--surface-mint); border-top: 1px solid var(--rule-strong);
+  text-align: right; font-size: 16px; line-height: 22px; color: var(--ink);
+}
+
+@media (max-width: 720px) {
+  .site-header { position: static; padding: 12px 16px; }
+  html { scroll-padding-top: 12px; }
+  .labels { grid-template-columns: minmax(0, 1fr); row-gap: 2px; }
+  .labels dd { margin-bottom: 10px; }
+  .site-footer { padding: 12px 16px; }
+}

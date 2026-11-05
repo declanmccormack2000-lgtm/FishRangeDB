@@ -1,13 +1,152 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FishRangeDB</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FishRangeDB</title>
+<meta name="description" content="An archive of fish occurrence, catch and body-length records, 1743 to 2026.">
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
-    <h1>FishRangeDB</h1>
-    <p>Welcome to FishRangeDB!</p>
-    <p>Website currently under development.</p>
+<header class="site-header">
+  <p class="site-title"><a href="index.html">McCormack Marine<br>Institute</a></p>
+  <nav aria-label="Main">
+    <a class="btn" href="index.html#introduction">Introduction</a>
+    <a class="btn" href="search.html">Search</a>
+    <a class="btn" href="index.html#holdings">Holdings</a>
+    <a class="btn" href="trends.html">Size Trends</a>
+    <a class="btn" href="index.html#downloads">Downloads</a>
+    <a class="btn" href="index.html#disclaimer">Disclaimer</a>
+    <a class="btn" href="index.html#whats-new">What's New</a>
+  </nav>
+</header>
+
+<main class="column">
+  <div class="page-head">
+    <h1>Welcome to FishRangeDB</h1>
+    <p>An archive of fish occurrence, catch and body-length records, 1743 to 2026.</p>
+  </div>
+
+  <form id="search" class="search-form" role="search" action="search.html" method="get">
+    <div class="field grow">
+      <label for="species-name">Scientific name</label>
+      <input id="species-name" name="q" type="search" placeholder="Gadus morhua">
+    </div>
+    <div class="field">
+      <label for="record-type">Record type</label>
+      <select id="record-type" name="type">
+        <option value="">All records</option>
+        <option value="occurrence">Occurrence</option>
+        <option value="catch">Catch</option>
+        <option value="length">Body length</option>
+      </select>
+    </div>
+    <button class="btn" type="submit">Search</button>
+  </form>
+
+  <section id="introduction" class="panel">
+    <h2>Introduction</h2>
+    <p>FishRangeDB brings together published records of where fish were observed, how much was caught and how long individual fish measured. It holds 14,026 species. Its purpose is to show how the recorded range and body size of each species have changed over time.</p>
+    <p>Records show where and when fish were sampled. They are not estimates of abundance or native range. Maps can be read against sampling effort, which we record for each 1° grid cell and year.</p>
+  </section>
+
+  <section id="holdings" class="panel">
+    <h2>Holdings</h2>
+    <div class="scroll"><div class="frame" style="min-width: 560px">
+      <table>
+        <tr><th scope="col">Record type</th><th scope="col">Source</th><th scope="col" class="n">Rows</th><th scope="col" class="n">Species</th><th scope="col" class="n">Years</th></tr>
+<tr><td>Occurrence</td><td>OBIS</td><td class="n">32,005,849</td><td class="n">12,708</td><td class="n">1743–2026</td></tr>
+<tr class="z"><td>Catch</td><td>FAO FishStat</td><td class="n">300,195</td><td class="n">2,476</td><td class="n">1950–2024</td></tr>
+<tr><td>Body length</td><td>OBIS</td><td class="n">6,968,928</td><td class="n">4,840</td><td class="n">1849–2025</td></tr>
+<tr class="z"><td>Body length</td><td>ICES DATRAS</td><td class="n">11,715,679</td><td class="n">591</td><td class="n">1965–2026</td></tr>
+<tr><td>Checklist</td><td>NSF NEON</td><td class="n">1,137</td><td class="n">1,062</td><td class="n">—</td></tr>
+      </table>
+    </div></div>
+    <p>Species counts overlap between sources. Catch rows are species-level; a further 178,629 rows report mixed groups and are held apart from species totals. ICES rows are length classes, each standing for many fish.</p>
+  </section>
+
+  <section id="size-trends" class="panel">
+    <h2>Size Trends</h2>
+    <p>We estimate change in mean body length within each survey, so that a survey is only compared with itself. There are 1,160 estimates covering 1,053 species: 121 show a clear decrease, 81 a clear increase and 958 no clear change. The remaining species do not yet have enough data.</p>
+    <figure>
+      <div id="figure-1" class="chart"></div>
+      <figcaption>Figure 1. Mean total length (cm) of European plaice, <i>Pleuronectes platessa</i>, in the North Sea International Bottom Trawl Survey, quarter 1, GOV trawl. Source: ICES DATRAS.</figcaption>
+    </figure>
+    <div class="scroll"><div class="frame" style="min-width: 620px">
+      <table>
+        <tr><th scope="col">Species</th><th scope="col">Length</th><th scope="col" class="n">Years</th><th scope="col" class="n">Per decade</th><th scope="col">Result</th></tr>
+<tr><td><a href="species.html?name=Pleuronectes+platessa"><i>Pleuronectes platessa</i></a></td><td>Total</td><td class="n">1966–2026</td><td class="n">−5.2%</td><td>Decreasing</td></tr>
+<tr class="z"><td><a href="species.html?name=Melanogrammus+aeglefinus"><i>Melanogrammus aeglefinus</i></a></td><td>Fork</td><td class="n">1970–2020</td><td class="n">−7.6%</td><td>Decreasing</td></tr>
+<tr><td><a href="species.html?name=Melanogrammus+aeglefinus"><i>Melanogrammus aeglefinus</i></a></td><td>Total</td><td class="n">1965–2026</td><td class="n">+7.2%</td><td>Increasing</td></tr>
+<tr class="z"><td><a href="species.html?name=Clupea+harengus"><i>Clupea harengus</i></a></td><td>Total</td><td class="n">1965–2026</td><td class="n">−2.2%</td><td>Decreasing</td></tr>
+<tr><td><a href="species.html?name=Gadus+morhua"><i>Gadus morhua</i></a></td><td>Total</td><td class="n">1965–2026</td><td class="n">+1.5%</td><td>No clear change</td></tr>
+<tr class="z"><td><a href="species.html?name=Haemulon+plumierii"><i>Haemulon plumierii</i></a></td><td>Not stated</td><td class="n">1994–2018</td><td class="n">+13.4%</td><td>Increasing</td></tr>
+<tr><td><a href="species.html?name=Stegastes+partitus"><i>Stegastes partitus</i></a></td><td>Not stated</td><td class="n">1994–2018</td><td class="n">−4.7%</td><td>Decreasing</td></tr>
+      </table>
+    </div></div>
+    <p>A result describes the fish that were sampled. Fishing pressure, gear, season or age composition can each cause it, and it is not evidence of evolutionary change.</p>
+    <p><a href="trends.html">View all 1,160 estimates</a></p>
+  </section>
+
+  <section id="downloads" class="panel">
+    <h2>Downloads</h2>
+    <div class="scroll"><div class="frame" style="min-width: 620px">
+      <table>
+        <tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="n">CSV</th><th scope="col" class="n">Zip</th></tr>
+<tr><td class="d"><a href="downloads/species_spatial_cells.zip">species_spatial_cells.zip</a></td><td>Species records by year and 1° cell</td><td class="n">64.8 MB</td><td class="n">6.1 MB</td></tr>
+<tr class="z"><td class="d"><a href="downloads/effort_cells.zip">effort_cells.zip</a></td><td>All fish records by year and 1° cell</td><td class="n">2.9 MB</td><td class="n">0.4 MB</td></tr>
+<tr><td class="d"><a href="downloads/species_catch_by_area.zip">species_catch_by_area.zip</a></td><td>Tonnes by species, year and FAO area</td><td class="n">6.9 MB</td><td class="n">0.8 MB</td></tr>
+<tr class="z"><td class="d"><a href="downloads/catch_groups.zip">catch_groups.zip</a></td><td>Catch reported for mixed groups, not species</td><td class="n">11.5 MB</td><td class="n">1.3 MB</td></tr>
+<tr><td class="d"><a href="downloads/species_length_by_year.zip">species_length_by_year.zip</a></td><td>Mean length by species, type and year</td><td class="n">3.7 MB</td><td class="n">1.1 MB</td></tr>
+<tr class="z"><td class="d"><a href="downloads/species_size_trends.zip">species_size_trends.zip</a></td><td>Change per decade by species and type</td><td class="n">0.6 MB</td><td class="n">0.1 MB</td></tr>
+<tr><td class="d"><a href="downloads/species_year_source.zip">species_year_source.zip</a></td><td>Record counts by species, year and source</td><td class="n">12.6 MB</td><td class="n">1.9 MB</td></tr>
+<tr class="z"><td class="d"><a href="downloads/dataset_series.zip">dataset_series.zip</a></td><td>Survey datasets and the series they belong to</td><td class="n">0.0 MB</td><td class="n">0.0 MB</td></tr>
+      </table>
+    </div></div>
+    <p>Each zip holds one CSV file and an attribution note. Every species record can also be read as JSON at <code>data/species/</code>.</p>
+  </section>
+
+  <section id="sources" class="panel">
+    <h2>Data Sources</h2>
+    <dl class="labels">
+      <dt>Occurrence:</dt>
+      <dd><a href="https://obis.org/">Ocean Biodiversity Information System (OBIS)</a>, bulk snapshot, CC BY-NC 4.0.</dd>
+      <dt>Catch:</dt>
+      <dd><a href="https://www.fao.org/fishery/en/fishstat">FAO FishStat</a>, Global capture production, release 2026.1.0, CC BY 4.0.</dd>
+      <dt>Body length:</dt>
+      <dd>OBIS measurement records; <a href="https://datras.ices.dk/">ICES Database of Trawl Surveys (DATRAS)</a>, CC BY 4.0.</dd>
+      <dt>Taxonomy:</dt>
+      <dd><a href="https://www.marinespecies.org/">World Register of Marine Species (WoRMS)</a>; NSF NEON fish taxon list.</dd>
+      <dt>Coastlines:</dt>
+      <dd><a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain.</dd>
+    </dl>
+  </section>
+
+  <section id="disclaimer" class="panel">
+    <h2>Disclaimer</h2>
+    <p>We make no warranty that records are free of errors. Sampling is uneven across regions and years, and the earliest record of a species is not its original range. Catch is reported by country and FAO fishing area, not by coordinates.</p>
+    <p>Names are not yet reconciled across all sources, so one species may appear under more than one name. Users must attribute each source and follow its licence. The OBIS snapshot is for non-commercial use.</p>
+  </section>
+
+  <section id="whats-new" class="panel">
+    <h2>What's New</h2>
+    <div class="scroll"><div class="frame" style="min-width: 420px">
+      <table>
+        <tr><th scope="col">Date</th><th scope="col">Update</th></tr>
+        <tr><td class="d">2026.11.05</td><td>Opened the database website, with a record page for each species.</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>Yearly Reef Visual Census datasets were grouped into two series.</td></tr>
+        <tr><td class="d">2026.10.30</td><td>Added ICES DATRAS lengths from 28 trawl surveys, 1965 to 2026.</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>Added body lengths from OBIS measurement records.</td></tr>
+        <tr><td class="d">2026.10.30</td><td>Added FAO capture production, 1950 to 2024.</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>Rebuilt the OBIS archive with corrected fish classes.</td></tr>
+      </table>
+    </div></div>
+  </section>
+</main>
+<footer class="site-footer">(c) McCormack Marine Institute</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/charts.js"></script>
+<script src="assets/home.js"></script>
 </body>
 </html>

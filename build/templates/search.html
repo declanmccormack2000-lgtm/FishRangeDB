@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search - FishRangeDB</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+{{header}}
+<main class="column">
+  <div class="page-head">
+    <h1>Search</h1>
+    <p>Find a species by scientific name, genus or family.</p>
+  </div>
+
+  <form id="search" class="search-form" role="search">
+    <div class="field grow">
+      <label for="q">Scientific name or family</label>
+      <input id="q" name="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="type">Record type</label>
+      <select id="type" name="type">
+        <option value="">All records</option>
+        <option value="occurrence">Occurrence</option>
+        <option value="catch">Catch</option>
+        <option value="length">Body length</option>
+        <option value="trend">Size trend</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="class">Class</label>
+      <select id="class" name="class"><option value="">All classes</option></select>
+    </div>
+    <div class="field">
+      <label for="sort">Sort by</label>
+      <select id="sort" name="sort">
+        <option value="">Name</option>
+        <option value="occ">Most occurrence records</option>
+        <option value="catch">Most catch</option>
+      </select>
+    </div>
+    <button class="btn" type="submit">Search</button>
+  </form>
+
+  <section class="panel" aria-live="polite">
+    <h2>Results</h2>
+    <p id="status">Loading the species list.</p>
+    <div id="results"></div>
+  </section>
+  <div id="pager" class="pager"></div>
+</main>
+{{footer}}
+<script src="assets/site.js"></script>
+<script src="assets/search.js"></script>
+</body>
+</html>

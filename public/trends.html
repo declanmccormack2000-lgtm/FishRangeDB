@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Size Trends - FishRangeDB</title>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="site-header">
+  <p class="site-title"><a href="index.html">McCormack Marine<br>Institute</a></p>
+  <nav aria-label="Main">
+    <a class="btn" href="index.html#introduction">Introduction</a>
+    <a class="btn" href="search.html">Search</a>
+    <a class="btn" href="index.html#holdings">Holdings</a>
+    <a class="btn" href="trends.html">Size Trends</a>
+    <a class="btn" href="index.html#downloads">Downloads</a>
+    <a class="btn" href="index.html#disclaimer">Disclaimer</a>
+    <a class="btn" href="index.html#whats-new">What's New</a>
+  </nav>
+</header>
+
+<main class="column">
+  <div class="page-head">
+    <h1>Size Trends</h1>
+    <p>Change in mean body length, estimated within each survey.</p>
+  </div>
+
+  <form id="filters" class="search-form">
+    <div class="field grow">
+      <label for="q">Scientific name</label>
+      <input id="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="result">Result</label>
+      <select id="result">
+        <option value="">All results</option>
+        <option value="decreasing">Decreasing</option>
+        <option value="increasing">Increasing</option>
+        <option value="no clear change">No clear change</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="length">Length</label>
+      <select id="length">
+        <option value="">All lengths</option>
+        <option value="TL">Total</option>
+        <option value="FL">Fork</option>
+        <option value="SL">Standard</option>
+        <option value="PCL">Precaudal</option>
+        <option value="unspecified">Not stated</option>
+      </select>
+    </div>
+  </form>
+
+  <section class="panel">
+    <h2>Estimates</h2>
+    <p>There are 1,160 estimates covering 1,053 species: 121 show a clear decrease, 81 a clear increase and 958 no clear change. A result is clear when the change is at least three times its standard error.</p>
+    <p id="status" aria-live="polite">Loading estimates.</p>
+    <div id="results"></div>
+  </section>
+  <div id="pager" class="pager"></div>
+
+  <section class="panel">
+    <h2>Method</h2>
+    <p>Each point is the mean length in one survey and year. Years and means are centred within each survey, so a change in which surveys exist cannot create a trend. An estimate needs at least five years across ten years of repeated surveys and 100 measured fish.</p>
+    <p>A result describes the fish that were sampled. Fishing pressure, gear, season or age composition can each cause it, and it is not evidence of evolutionary change.</p>
+  </section>
+</main>
+<footer class="site-footer">(c) McCormack Marine Institute</footer>
+
+<script src="assets/site.js"></script>
+<script src="assets/trends.js"></script>
+</body>
+</html>
