@@ -1,122 +1,155 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{lang}}" data-root="{{root}}">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+{{head}}
 <title>FishRangeDB</title>
-<meta name="description" content="An archive of fish occurrence, catch and body-length records, {{year_first}} to {{year_last}}.">
-<link rel="stylesheet" href="assets/site.css">
+<meta name="description" content="[[tagline]]">
 </head>
 <body>
 {{header}}
 <main class="column">
   <div class="page-head">
-    <h1>Welcome to FishRangeDB</h1>
-    <p>An archive of fish occurrence, catch and body-length records, {{year_first}} to {{year_last}}.</p>
+    <h1>[[welcome]]</h1>
+    <p>[[tagline]]</p>
   </div>
 
   <form id="search" class="search-form" role="search" action="search.html" method="get">
     <div class="field grow">
-      <label for="species-name">Scientific name</label>
+      <label for="species-name">[[sci_name]]</label>
       <input id="species-name" name="q" type="search" placeholder="Gadus morhua">
     </div>
     <div class="field">
-      <label for="record-type">Record type</label>
+      <label for="record-type">[[record_type]]</label>
       <select id="record-type" name="type">
-        <option value="">All records</option>
-        <option value="occurrence">Occurrence</option>
-        <option value="catch">Catch</option>
-        <option value="length">Body length</option>
+        <option value="">[[all_records]]</option>
+        <option value="occurrence">[[occurrence]]</option>
+        <option value="catch">[[catch]]</option>
+        <option value="length">[[body_length]]</option>
       </select>
     </div>
-    <button class="btn" type="submit">Search</button>
+    <button class="btn" type="submit">[[search_btn]]</button>
   </form>
 
   <section id="introduction" class="panel">
-    <h2>Introduction</h2>
-    <p>FishRangeDB brings together published records of where fish were observed, how much was caught and how long individual fish measured. It holds {{species}} species. Its purpose is to show how the recorded range and body size of each species have changed over time.</p>
-    <p>Records show where and when fish were sampled. They are not estimates of abundance or native range. Maps can be read against sampling effort, which we record for each 1° grid cell and year.</p>
+    <h2>[[intro_h]]</h2>
+    <p>[[intro_p1]]</p>
+    <p>[[intro_p2]]</p>
+  </section>
+
+  <section id="map" class="panel">
+    <h2>[[map_h]]</h2>
+    <p>[[map_p]]</p>
+    <div class="controls">
+      <div class="field grow place-field">
+        <label for="place">[[place_label]]</label>
+        <input id="place" type="search" placeholder="[[place_placeholder]]" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="place-list" aria-autocomplete="list">
+        <ul id="place-list" class="place-list" role="listbox" hidden></ul>
+      </div>
+      <div class="field">
+        <label for="explore-shade">[[shade_label]]</label>
+        <select id="explore-shade">
+          <option value="species">[[shade_species]]</option>
+          <option value="records">[[shade_records]]</option>
+        </select>
+      </div>
+      <div class="zoom-buttons">
+        <button class="btn" type="button" id="zoom-in">[[zoom_in]]</button>
+        <button class="btn" type="button" id="zoom-out">[[zoom_out]]</button>
+        <button class="btn" type="button" id="zoom-world">[[world]]</button>
+      </div>
+    </div>
+    <figure>
+      <div class="map" id="explore-map"></div>
+      <div class="legend" id="explore-legend"></div>
+      <figcaption>[[map_caption]]</figcaption>
+    </figure>
+    <div id="cell-detail" aria-live="polite"></div>
   </section>
 
   <section id="holdings" class="panel">
-    <h2>Holdings</h2>
+    <h2>[[holdings_h]]</h2>
     <div class="scroll"><div class="frame" style="min-width: 560px">
       <table>
-        <tr><th scope="col">Record type</th><th scope="col">Source</th><th scope="col" class="n">Rows</th><th scope="col" class="n">Species</th><th scope="col" class="n">Years</th></tr>
+        <tr><th scope="col">[[col_record_type]]</th><th scope="col">[[col_source]]</th><th scope="col" class="n">[[col_rows]]</th><th scope="col" class="n">[[col_species_n]]</th><th scope="col" class="n">[[col_years]]</th></tr>
 {{holdings_rows}}
       </table>
     </div></div>
-    <p>Species counts overlap between sources. Catch rows are species-level; a further {{group_rows}} rows report mixed groups and are held apart from species totals. ICES rows are length classes, each standing for many fish.</p>
+    <p>[[holdings_note]]</p>
   </section>
 
   <section id="size-trends" class="panel">
-    <h2>Size Trends</h2>
-    <p>We estimate change in mean body length within each survey, so that a survey is only compared with itself. There are {{estimates}} estimates covering {{trend_species}} species: {{decreasing}} show a clear decrease, {{increasing}} a clear increase and {{no_change}} no clear change. The remaining species do not yet have enough data.</p>
+    <h2>[[trends_h]]</h2>
+    <p>[[trends_p]]</p>
     <figure>
       <div id="figure-1" class="chart"></div>
-      <figcaption>Figure 1. Mean total length (cm) of European plaice, <i>Pleuronectes platessa</i>, in the North Sea International Bottom Trawl Survey, quarter 1, GOV trawl. Source: ICES DATRAS.</figcaption>
+      <figcaption>[[fig1_caption]]</figcaption>
     </figure>
     <div class="scroll"><div class="frame" style="min-width: 620px">
       <table>
-        <tr><th scope="col">Species</th><th scope="col">Length</th><th scope="col" class="n">Years</th><th scope="col" class="n">Per decade</th><th scope="col">Result</th></tr>
+        <tr><th scope="col">[[col_species]]</th><th scope="col">[[length_label]]</th><th scope="col" class="n">[[col_years]]</th><th scope="col" class="n">[[col_per_decade]]</th><th scope="col">[[col_result]]</th></tr>
 {{home_trend_rows}}
       </table>
     </div></div>
-    <p>A result describes the fish that were sampled. Fishing pressure, gear, season or age composition can each cause it, and it is not evidence of evolutionary change.</p>
-    <p><a href="trends.html">View all {{estimates}} estimates</a></p>
+    <p>[[trend_caveat]]</p>
+    <p><a href="trends.html">[[view_all]]</a></p>
   </section>
 
   <section id="downloads" class="panel">
-    <h2>Downloads</h2>
+    <h2>[[downloads_h]]</h2>
     <div class="scroll"><div class="frame" style="min-width: 620px">
       <table>
-        <tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="n">CSV</th><th scope="col" class="n">Zip</th></tr>
+        <tr><th scope="col">[[col_file]]</th><th scope="col">[[col_contents]]</th><th scope="col" class="n">CSV</th><th scope="col" class="n">Zip</th></tr>
 {{download_rows}}
       </table>
     </div></div>
-    <p>Each zip holds one CSV file and an attribution note. Every species record can also be read as JSON at <code>data/species/</code>.</p>
+    <p>[[dl_note]]</p>
   </section>
 
   <section id="sources" class="panel">
-    <h2>Data Sources</h2>
+    <h2>[[sources_h]]</h2>
     <dl class="labels">
-      <dt>Occurrence:</dt>
-      <dd><a href="https://obis.org/">Ocean Biodiversity Information System (OBIS)</a>, bulk snapshot, CC BY-NC 4.0.</dd>
-      <dt>Catch:</dt>
-      <dd><a href="https://www.fao.org/fishery/en/fishstat">FAO FishStat</a>, Global capture production, release 2026.1.0, CC BY 4.0.</dd>
-      <dt>Body length:</dt>
-      <dd>OBIS measurement records; <a href="https://datras.ices.dk/">ICES Database of Trawl Surveys (DATRAS)</a>, CC BY 4.0.</dd>
-      <dt>Taxonomy:</dt>
-      <dd><a href="https://www.marinespecies.org/">World Register of Marine Species (WoRMS)</a>; NSF NEON fish taxon list.</dd>
-      <dt>Coastlines:</dt>
-      <dd><a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain.</dd>
+      <dt>[[src_occ]]</dt>
+      <dd>[[src_occ_dd]]</dd>
+      <dt>[[src_catch]]</dt>
+      <dd>[[src_catch_dd]]</dd>
+      <dt>[[src_len]]</dt>
+      <dd>[[src_len_dd]]</dd>
+      <dt>[[src_tax]]</dt>
+      <dd>[[src_tax_dd]]</dd>
+      <dt>[[src_geo]]</dt>
+      <dd>[[src_geo_dd]]</dd>
     </dl>
   </section>
 
   <section id="disclaimer" class="panel">
-    <h2>Disclaimer</h2>
-    <p>We make no warranty that records are free of errors. Sampling is uneven across regions and years, and the earliest record of a species is not its original range. Catch is reported by country and FAO fishing area, not by coordinates.</p>
-    <p>Names are not yet reconciled across all sources, so one species may appear under more than one name. Users must attribute each source and follow its licence. The OBIS snapshot is for non-commercial use.</p>
+    <h2>[[disclaimer_h]]</h2>
+    <p>[[disc_p1]]</p>
+    <p>[[disc_p2]]</p>
+    <p>[[disc_p3]]</p>
   </section>
 
   <section id="whats-new" class="panel">
-    <h2>What's New</h2>
+    <h2>[[new_h]]</h2>
     <div class="scroll"><div class="frame" style="min-width: 420px">
       <table>
-        <tr><th scope="col">Date</th><th scope="col">Update</th></tr>
-        <tr><td class="d">2026.11.05</td><td>Opened the database website, with a record page for each species.</td></tr>
-        <tr class="z"><td class="d">2026.10.30</td><td>Yearly Reef Visual Census datasets were grouped into two series.</td></tr>
-        <tr><td class="d">2026.10.30</td><td>Added ICES DATRAS lengths from 28 trawl surveys, 1965 to 2026.</td></tr>
-        <tr class="z"><td class="d">2026.10.30</td><td>Added body lengths from OBIS measurement records.</td></tr>
-        <tr><td class="d">2026.10.30</td><td>Added FAO capture production, 1950 to 2024.</td></tr>
-        <tr class="z"><td class="d">2026.10.30</td><td>Rebuilt the OBIS archive with corrected fish classes.</td></tr>
+        <tr><th scope="col">[[col_date]]</th><th scope="col">[[col_update]]</th></tr>
+        <tr><td class="d">2026.11.11</td><td>[[new_ja]]</td></tr>
+        <tr class="z"><td class="d">2026.11.11</td><td>[[new_map]]</td></tr>
+        <tr><td class="d">2026.11.05</td><td>[[new_site]]</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>[[new_series]]</td></tr>
+        <tr><td class="d">2026.10.30</td><td>[[new_ices]]</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>[[new_obisl]]</td></tr>
+        <tr><td class="d">2026.10.30</td><td>[[new_fao]]</td></tr>
+        <tr class="z"><td class="d">2026.10.30</td><td>[[new_obis]]</td></tr>
       </table>
     </div></div>
   </section>
 </main>
 {{footer}}
-<script src="assets/site.js"></script>
-<script src="assets/charts.js"></script>
-<script src="assets/home.js"></script>
+{{scripts}}
+<script src="{{root}}assets/charts.js"></script>
+<script src="{{root}}assets/map.js"></script>
+<script src="{{root}}assets/home.js"></script>
+<script src="{{root}}assets/explore.js"></script>
 </body>
 </html>

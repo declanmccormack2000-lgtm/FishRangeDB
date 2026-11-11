@@ -8,10 +8,10 @@
     const points = d.rows.filter(r => r[0] >= 1980).map(r => [r[0], r[2]]);
     FRD.lineChart(host, {
       points,
-      formatY: (v, digits, axis) => axis ? v.toFixed(digits) : `${v.toFixed(1)} cm`,
-      label: `Line chart. Mean total length of European plaice in the North Sea was ${points[0][1].toFixed(1)} cm in ${points[0][0]} and ${points[points.length - 1][1].toFixed(1)} cm in ${points[points.length - 1][0]}.`,
+      formatY: (v, digits, axis) => axis ? v.toFixed(digits) : FRD.t('cm', { v: v.toFixed(1) }),
+      label: FRD.t('fig_aria', { a: points[0][1].toFixed(1), ya: points[0][0], b: points[points.length - 1][1].toFixed(1), yb: points[points.length - 1][0] }),
     });
   } catch (e) {
-    host.textContent = 'This figure could not be loaded.';
+    host.textContent = FRD.t('fig_failed');
   }
 })();

@@ -20,6 +20,8 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
+from i18n import DOWNLOAD_LABELS, HOLDINGS, LANGS, STRINGS, t as tr
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 PUBLIC = ROOT / 'public'
@@ -104,7 +106,7 @@ def load_trends(home, c):
     return rows
 
 
-def build_species(c, trends, countries):
+def build_species(c, trends):
     species = c.execute('SELECT species_id,canonical_name,fish_class,family FROM species').fetchall()
     ids = defaultdict(dict)
     for sid, source, tid in c.execute('SELECT species_id,source,source_taxon_id FROM source_taxa'):
@@ -133,7 +135,7 @@ def build_species(c, trends, countries):
             'SELECT species_id,year,area,country,catch_tonnes FROM catches WHERE species_id IS NOT NULL'):
         catch_year[sid][year] += t
         catch_area[sid][area or 'Not stated'] += t
-        catch_country[sid][countries.get(country, country or 'Not stated')] += t
+        catch_country[sid][country or ''] += t
 
     lengths = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [0.0, 0.0])))
     meta = {}
@@ -212,18 +214,67 @@ def build_species(c, trends, countries):
                       round(sum(years.values())) if years else 0,
                       min(lo_year) if lo_year else 0, max(hi_year) if hi_year else 0])
     index.sort(key=lambda r: r[0])
+    cellset = build_explore(c, cells, effort, {r[0]: i for i, r in enumerate(index)}, {sid: name for sid, name, _, _ in species})
     write_json(PUBLIC / 'data' / 'index.json', {'classes': classes, 'rows': index})
 
     flat = defaultdict(list)
     for (d, la, lo), n in sorted(effort.items()):
         flat[str(d)] += [la, lo, n]
     write_json(PUBLIC / 'data' / 'effort.json', flat)
-    return len(index)
+    return len(index), cellset
 
 
-def build_land():
+def build_explore(c, cells, effort, position, names):
+    """Front-page map: one overview file of cells, and the species of each cell in 10° tiles."""
+    per_cell = defaultdict(dict)
+    for sid, by_cell in cells.items():
+        idx = position[names[sid]]
+        for (_, la, lo), n in by_cell.items():
+            per_cell[(la, lo)][idx] = per_cell[(la, lo)].get(idx, 0) + n
+    records = defaultdict(int)
+    for (_, la, lo), n in effort.items():
+        records[(la, lo)] += n
+    flat = []
+    tiles = defaultdict(dict)
+    for (la, lo) in sorted(per_cell):
+        sp = per_cell[(la, lo)]
+        flat += [la, lo, records[(la, lo)], len(sp)]
+        ordered = sorted(sp.items(), key=lambda kv: (-kv[1], kv[0]))
+        tiles[(la // 10, lo // 10)][f'{la},{lo}'] = [v for kv in ordered for v in kv]
+    write_json(PUBLIC / 'data' / 'cells.json', flat)
+    for (a, b), body in tiles.items():
+        write_json(PUBLIC / 'data' / 'cells' / f'{a}_{b}.json', body)
+    return set(per_cell)
+
+
+def build_places(cellset):
+    """Keep the Natural Earth places that contain at least one cell with records."""
+    rows = json.loads((HERE / 'places_source.json').read_text(encoding='utf-8'))
+    keep = []
+    country_ja = {r[0]: r[1] for r in rows if r[2] == 'country'}
+    for name, ja, kind, country, w, s, e, n in rows:
+        lons = range(math.floor(w), math.ceil(e)) if w <= e else [*range(math.floor(w), 180), *range(-180, math.ceil(e))]
+        lats = range(max(math.floor(s), -90), min(math.ceil(n), 90))
+        if len(lons) * len(lats) > 5000:          # large: test the data cells against the box instead
+            hit = any(s <= la - 90 + .5 <= n and ((w <= lo - 180 + .5 <= e) if w <= e else not (e < lo - 180 + .5 < w))
+                      for la, lo in cellset)
+        else:
+            hit = any((la + 90, (lo + 180) % 360) in cellset for la in lats for lo in lons)
+        if hit:
+            keep.append([name, ja, kind, country, w, s, e, n, country_ja.get(country, country)])
+    write_json(PUBLIC / 'data' / 'places.json', keep)
+    return len(keep)
+
+
+def build_countries():
+    en = json.loads((HERE / 'fao_countries.json').read_text(encoding='utf-8'))
+    ja = json.loads((HERE / 'country_names_ja.json').read_text(encoding='utf-8'))
+    write_json(PUBLIC / 'data' / 'countries.json', {k: [v, ja.get(k, v)] for k, v in en.items()})
+
+
+def build_land(source='land-110m.json', target='land.json'):
     """Decode the Natural Earth land TopoJSON into flat lon,lat rings."""
-    topo = json.loads((HERE / 'land-110m.json').read_text(encoding='utf-8'))
+    topo = json.loads((HERE / source).read_text(encoding='utf-8'))
     (sx, sy), (tx, ty) = topo['transform']['scale'], topo['transform']['translate']
     arcs = []
     for arc in topo['arcs']:
@@ -270,7 +321,7 @@ def build_land():
 
     for obj in topo['objects'].values():
         geometry(obj)
-    write_json(PUBLIC / 'data' / 'land.json', rings)
+    write_json(PUBLIC / 'data' / target, rings)
 
 
 def build_downloads(exports):
@@ -326,42 +377,54 @@ def pct(x):
 
 
 def render(trends, c, downloads, species_count):
-    by_key = {(t['canonical_name'], t['length_type']): t for t in trends}
-    home_rows = []
-    for key in HOME_TRENDS:
-        t = by_key[key]
-        link = f'<a href="species.html?name={key[0].replace(" ", "+")}"><i>{key[0]}</i></a>'
-        home_rows.append([td(link), td(LENGTH_LABELS[key[1]]), td(f"{t['first_year']}–{t['last_year']}", 'n'),
-                          td(pct(t['slope_pct_per_decade']), 'n'), td(RESULT_LABELS[t['trend']])])
+    by_key = {(x['canonical_name'], x['length_type']): x for x in trends}
     counts = defaultdict(int)
-    for t in trends:
-        counts[t['trend']] += 1
+    for x in trends:
+        counts[x['trend']] += 1
     held = holdings(c)
     groups = c.execute("SELECT SUM(rejected) FROM imports WHERE source='FAO'").fetchone()[0]
     y0 = min(int(h[4][:4]) for h in held if h[4] != '—')
     y1 = max(int(h[4][-4:]) for h in held if h[4] != '—')
-    values = {
-        'species': fmt(species_count), 'year_first': str(y0), 'year_last': str(y1),
-        'holdings_rows': rows_html([[td(h[0]), td(h[1]), td(fmt(h[2]), 'n'), td(fmt(h[3]), 'n'), td(h[4], 'n')] for h in held]),
-        'group_rows': fmt(groups or 0),
-        'estimates': fmt(len(trends)), 'trend_species': fmt(len({t['canonical_name'] for t in trends})),
-        'decreasing': fmt(counts['decreasing']), 'increasing': fmt(counts['increasing']),
-        'no_change': fmt(counts['no clear change']),
-        'home_trend_rows': rows_html(home_rows),
-        'download_rows': rows_html([[td(f'<a href="downloads/{n}">{n}</a>', 'd'), td(label),
-                                     td(f'{csv_size / 1e6:.1f} MB', 'n'), td(f'{zip_size / 1e6:.1f} MB', 'n')]
-                                    for n, label, csv_size, zip_size in downloads]),
-    }
-    shared = {k: (TEMPLATES / f'_{k}.html').read_text(encoding='utf-8') for k in ('header', 'footer')}
-    for page in TEMPLATES.glob('[!_]*.html'):
-        text = page.read_text(encoding='utf-8')
-        for k, v in shared.items():
-            text = text.replace('{{' + k + '}}', v)
-        for k, v in values.items():
-            text = text.replace('{{' + k + '}}', v)
-        left = re.findall(r'\{\{\w+\}\}', text)
-        assert not left, f'{page.name}: unfilled {left}'
-        (PUBLIC / page.name).write_text(text, encoding='utf-8', newline='\n')
+    parts = {k: (TEMPLATES / f'_{k}.html').read_text(encoding='utf-8') for k in ('header', 'footer', 'head', 'scripts')}
+    result_key = {'decreasing': 'decreasing', 'increasing': 'increasing', 'no clear change': 'no_change'}
+    for lang in LANGS:
+        root = '' if lang == 'en' else '../'
+        out_dir = PUBLIC if lang == 'en' else PUBLIC / lang
+        out_dir.mkdir(parents=True, exist_ok=True)
+        home_rows = []
+        for key in HOME_TRENDS:
+            x = by_key[key]
+            link = f'<a href="species.html?name={key[0].replace(" ", "+")}"><i>{key[0]}</i></a>'
+            home_rows.append([td(link), td(tr('len_' + key[1], lang)), td(f"{x['first_year']}–{x['last_year']}", 'n'),
+                              td(pct(x['slope_pct_per_decade']), 'n'), td(tr(result_key[x['trend']], lang))])
+        label = (lambda v: v) if lang == 'en' else (lambda v: HOLDINGS.get(v, v))
+        values = {
+            'species': fmt(species_count), 'year_first': str(y0), 'year_last': str(y1),
+            'holdings_rows': rows_html([[td(label(h[0])), td(h[1]), td(fmt(h[2]), 'n'), td(fmt(h[3]), 'n'), td(h[4], 'n')] for h in held]),
+            'group_rows': fmt(groups or 0),
+            'estimates': fmt(len(trends)), 'trend_species': fmt(len({x['canonical_name'] for x in trends})),
+            'decreasing': fmt(counts['decreasing']), 'increasing': fmt(counts['increasing']),
+            'no_change': fmt(counts['no clear change']),
+            'home_trend_rows': rows_html(home_rows),
+            'download_rows': rows_html([[td(f'<a href="{root}downloads/{n}">{n}</a>', 'd'),
+                                         td(desc if lang == 'en' else DOWNLOAD_LABELS[n[:-4] + '.csv']),
+                                         td(f'{csv_size / 1e6:.1f} MB', 'n'), td(f'{zip_size / 1e6:.1f} MB', 'n')]
+                                        for n, desc, csv_size, zip_size in downloads]),
+        }
+        for page in TEMPLATES.glob('[!_]*.html'):
+            text = page.read_text(encoding='utf-8')
+            for k, v in parts.items():
+                text = text.replace('{{' + k + '}}', v)
+            text = re.sub(r'\[\[(\w+)\]\]', lambda m: tr(m.group(1), lang), text)
+            page_values = dict(values, lang=lang, root=root,
+                               switch_href=(f'ja/{page.name}' if lang == 'en' else f'../{page.name}'),
+                               en_href=(page.name if lang == 'en' else f'../{page.name}'),
+                               ja_href=(f'ja/{page.name}' if lang == 'en' else page.name))
+            for k, v in page_values.items():
+                text = text.replace('{{' + k + '}}', v)
+            left = re.findall(r'\{\{\w+\}\}|\[\[\w+\]\]', text)
+            assert not left, f'{lang}/{page.name}: unfilled {left}'
+            (out_dir / page.name).write_text(text, encoding='utf-8', newline='\n')
     return values
 
 
@@ -381,6 +444,7 @@ def check(c, values):
     assert sum(d['n'] for d in cod['dec']) == sample, 'cod cell totals differ'
     total = sum(p.stat().st_size for p in PUBLIC.rglob('*') if p.is_file())
     count = sum(1 for p in PUBLIC.rglob('*') if p.is_file())
+    assert (PUBLIC / 'ja' / 'index.html').exists(), 'Japanese pages missing'
     assert count < 20000, 'over the Cloudflare free-plan file limit'
     print(f'checked: {len(rows):,} species, {count:,} files, {total / 1e6:.1f} MB in public/')
 
@@ -393,6 +457,7 @@ def main():
     c = sqlite3.connect(f'file:{db.as_posix()}?mode=ro', uri=True)
     shutil.rmtree(PUBLIC / 'data', ignore_errors=True)
     shutil.rmtree(PUBLIC / 'downloads', ignore_errors=True)
+    shutil.rmtree(PUBLIC / 'ja', ignore_errors=True)
     (PUBLIC / 'data').mkdir(parents=True)
 
     trends = load_trends(a.home, c)
@@ -400,9 +465,11 @@ def main():
         [t['canonical_name'], t['length_type'], t['first_year'], t['last_year'], t['datasets_with_repeat_years'],
          round_num(t['measured_individuals'], 0), t['mean_length_cm'], t['slope_cm_per_decade'],
          t['slope_pct_per_decade'], t['t_stat'], t['trend']] for t in trends])
-    countries = json.loads((HERE / 'fao_countries.json').read_text(encoding='utf-8'))
-    species_count = build_species(c, trends, countries)
+    species_count, cellset = build_species(c, trends)
+    print(f'places kept: {build_places(cellset):,}')
+    build_countries()
     build_land()
+    build_land('land-50m.json', 'land-50m.json')
     downloads = build_downloads(a.home / 'exports')
     values = render(trends, c, downloads, species_count)
     check(c, values)

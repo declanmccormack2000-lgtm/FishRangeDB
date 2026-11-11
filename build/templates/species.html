@@ -1,24 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{lang}}" data-root="{{root}}">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Species record - FishRangeDB</title>
-<link rel="stylesheet" href="assets/site.css">
+{{head}}
+<title>[[species_record]] - FishRangeDB</title>
 </head>
 <body>
 {{header}}
 <main class="column">
   <div class="page-head">
-    <h1 id="species-title">Species record</h1>
-    <p id="species-sub">Loading the record.</p>
+    <h1 id="species-title">[[species_record]]</h1>
+    <p id="species-sub">[[loading_record]]</p>
   </div>
   <div id="record"></div>
 </main>
 {{footer}}
-<script src="assets/site.js"></script>
-<script src="assets/charts.js"></script>
-<script src="assets/map.js"></script>
-<script src="assets/species.js"></script>
+{{scripts}}
+<script src="{{root}}assets/charts.js"></script>
+<script src="{{root}}assets/map.js"></script>
+<script src="{{root}}assets/species.js"></script>
 </body>
 </html>

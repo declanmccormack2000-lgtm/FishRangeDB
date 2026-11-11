@@ -18,7 +18,7 @@
   try {
     index = await FRD.json('data/index.json');
   } catch (e) {
-    status.textContent = 'The species list could not be loaded.';
+    status.textContent = FRD.t('load_failed_list');
     return;
   }
   index.classes.forEach((c, i) => classField.append(el('option', { value: i }, c)));
@@ -45,13 +45,11 @@
     const pages = Math.ceil(rows.length / PAGE);
     page = Math.min(page, Math.max(pages - 1, 0));
     const chunk = rows.slice(page * PAGE, (page + 1) * PAGE);
-    status.textContent = rows.length
-      ? `${num(rows.length)} species found.`
-      : 'No species match this search. Common names are not yet held, so try a scientific name, genus or family.';
+    status.textContent = rows.length ? FRD.t('found', { n: num(rows.length) }) : FRD.t('no_match');
     results.replaceChildren();
     if (chunk.length) {
       results.append(FRD.table(
-        [{ label: 'Species' }, { label: 'Family' }, { label: 'Occurrences', numeric: true }, { label: 'Catch', numeric: true }, { label: 'Years', numeric: true }],
+        [{ label: FRD.t('col_species') }, { label: FRD.t('col_family') }, { label: FRD.t('col_occ'), numeric: true }, { label: FRD.t('col_catch'), numeric: true }, { label: FRD.t('col_years'), numeric: true }],
         chunk.map(r => [FRD.speciesLink(r[0]), r[1] || '—', r[4] ? num(r[4]) : '—', r[5] ? FRD.tonnes(r[5]) : '—', r[6] ? FRD.years(r[6], r[7]) : '—']), 620));
     }
     FRD.pager(pager, page, pages, p => { page = p; render(); syncUrl(); scrollTo(0, 0); });

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="alternate" hreflang="en" href="../trends.html">
+<link rel="alternate" hreflang="ja" href="trends.html">
+<link rel="stylesheet" href="../assets/site.css">
+
+<title>体長の傾向 - FishRangeDB</title>
+</head>
+<body>
+<header class="site-header">
+  <p class="site-title"><a href="index.html">マコーミック<br>海洋研究所</a></p>
+  <nav aria-label="メイン">
+    <a class="btn" href="index.html#introduction">はじめに</a>
+    <a class="btn" href="index.html#map">地図</a>
+    <a class="btn" href="search.html">検索</a>
+    <a class="btn" href="index.html#holdings">収録データ</a>
+    <a class="btn" href="trends.html">体長の傾向</a>
+    <a class="btn" href="index.html#downloads">ダウンロード</a>
+    <a class="btn" href="index.html#disclaimer">免責事項</a>
+    <a class="btn" href="index.html#whats-new">更新情報</a>
+    <a class="btn lang-switch" id="lang-switch" href="../trends.html" hreflang="en" lang="en" title="View this page in English">English</a>
+  </nav>
+</header>
+
+<main class="column">
+  <div class="page-head">
+    <h1>体長の傾向</h1>
+    <p>調査ごとに推定した平均体長の変化。</p>
+  </div>
+
+  <form id="filters" class="search-form">
+    <div class="field grow">
+      <label for="q">学名</label>
+      <input id="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="result">結果</label>
+      <select id="result">
+        <option value="">すべての結果</option>
+        <option value="decreasing">減少</option>
+        <option value="increasing">増加</option>
+        <option value="no clear change">明確な変化なし</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="length">体長の種類</label>
+      <select id="length">
+        <option value="">すべて</option>
+        <option value="TL">全長</option>
+        <option value="FL">尾叉長</option>
+        <option value="SL">標準体長</option>
+        <option value="PCL">尾前長</option>
+        <option value="unspecified">記載なし</option>
+      </select>
+    </div>
+  </form>
+
+  <section class="panel">
+    <h2>推定値</h2>
+    <p>推定値は 1,160 件（1,053 種）あり、明確な減少が 121 件、明確な増加が 81 件、明確な変化なしが 958 件です。変化が標準誤差の3倍以上のとき「明確」としています。</p>
+    <p id="status" aria-live="polite">推定値を読み込んでいます。</p>
+    <div id="results"></div>
+  </section>
+  <div id="pager" class="pager"></div>
+
+  <section class="panel">
+    <h2>方法</h2>
+    <p>各点は、ある調査のある年の平均体長です。年と平均値は調査ごとに中心化しているため、どの調査が存在するかの変化によって傾向が生じることはありません。推定には、繰り返し行われた調査で10年以上の期間にわたる5年以上のデータと、測定された100尾以上の魚が必要です。</p>
+    <p>結果は採集された魚について述べたものです。漁獲圧、漁具、季節、年齢構成のいずれも原因となりうるため、進化的な変化の証拠ではありません。</p>
+  </section>
+</main>
+<footer class="site-footer">(c) マコーミック海洋研究所</footer>
+
+<script src="../assets/i18n.js"></script>
+<script src="../assets/site.js"></script>
+
+<script src="../assets/trends.js"></script>
+</body>
+</html>

@@ -14,13 +14,13 @@
   try {
     rows = await FRD.json('data/trends.json');
   } catch (e) {
-    status.textContent = 'The estimates could not be loaded.';
+    status.textContent = FRD.t('load_failed_trends');
     return;
   }
   const COLUMNS = [
-    { label: 'Species', key: 0 }, { label: 'Length', key: 1 }, { label: 'Years', key: 2, numeric: true },
-    { label: 'Surveys', key: 4, numeric: true }, { label: 'Fish', key: 5, numeric: true },
-    { label: 'Per decade', key: 8, numeric: true }, { label: 'Result', key: 10 }];
+    { label: FRD.t('col_species'), key: 0 }, { label: FRD.t('col_length'), key: 1 }, { label: FRD.t('col_years'), key: 2, numeric: true },
+    { label: FRD.t('col_surveys'), key: 4, numeric: true }, { label: FRD.t('col_fish'), key: 5, numeric: true },
+    { label: FRD.t('col_per_decade'), key: 8, numeric: true }, { label: FRD.t('col_result'), key: 10 }];
   let sort = { key: 8, dir: 1 }, page = 0;
 
   function render() {
@@ -33,7 +33,7 @@
     });
     const pages = Math.ceil(shown.length / PAGE);
     page = Math.min(page, Math.max(pages - 1, 0));
-    status.textContent = shown.length ? `${num(shown.length)} estimates shown.` : 'No estimates match these filters.';
+    status.textContent = shown.length ? FRD.t('shown', { n: num(shown.length) }) : FRD.t('no_estimates');
 
     const head = el('tr', {}, COLUMNS.map(c => el('th', {
       scope: 'col', class: c.numeric ? 'n' : null,
@@ -44,9 +44,9 @@
       render();
     } }, c.label))));
     const body = shown.slice(page * PAGE, (page + 1) * PAGE).map((r, i) => el('tr', { class: i % 2 ? 'z' : null },
-      el('td', {}, FRD.speciesLink(r[0])), el('td', {}, FRD.LENGTHS[r[1]]),
-      el('td', { class: 'n' }, `${r[2]}–${r[3]}`), el('td', { class: 'n' }, num(r[4])), el('td', { class: 'n' }, num(r[5])),
-      el('td', { class: 'n' }, FRD.percent(r[8])), el('td', {}, FRD.RESULTS[r[10]])));
+      el('td', {}, FRD.speciesLink(r[0])), el('td', {}, FRD.lengthName(r[1])),
+      el('td', { class: 'n' }, FRD.years(r[2], r[3])), el('td', { class: 'n' }, num(r[4])), el('td', { class: 'n' }, num(r[5])),
+      el('td', { class: 'n' }, FRD.percent(r[8])), el('td', {}, FRD.result(r[10]))));
     results.replaceChildren();
     if (shown.length) {
       results.append(el('div', { class: 'scroll' }, el('div', { class: 'frame', style: 'min-width: 640px' }, el('table', {}, head, body))));

@@ -1,23 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-root="">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="alternate" hreflang="en" href="index.html">
+<link rel="alternate" hreflang="ja" href="ja/index.html">
+<link rel="stylesheet" href="assets/site.css">
+
 <title>FishRangeDB</title>
 <meta name="description" content="An archive of fish occurrence, catch and body-length records, 1743 to 2026.">
-<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 <header class="site-header">
   <p class="site-title"><a href="index.html">McCormack Marine<br>Institute</a></p>
   <nav aria-label="Main">
     <a class="btn" href="index.html#introduction">Introduction</a>
+    <a class="btn" href="index.html#map">Map</a>
     <a class="btn" href="search.html">Search</a>
     <a class="btn" href="index.html#holdings">Holdings</a>
     <a class="btn" href="trends.html">Size Trends</a>
     <a class="btn" href="index.html#downloads">Downloads</a>
     <a class="btn" href="index.html#disclaimer">Disclaimer</a>
     <a class="btn" href="index.html#whats-new">What's New</a>
+    <a class="btn lang-switch" id="lang-switch" href="ja/index.html" hreflang="ja" lang="ja" title="このページを日本語で表示">日本語</a>
   </nav>
 </header>
 
@@ -48,6 +53,36 @@
     <h2>Introduction</h2>
     <p>FishRangeDB brings together published records of where fish were observed, how much was caught and how long individual fish measured. It holds 14,026 species. Its purpose is to show how the recorded range and body size of each species have changed over time.</p>
     <p>Records show where and when fish were sampled. They are not estimates of abundance or native range. Maps can be read against sampling effort, which we record for each 1° grid cell and year.</p>
+  </section>
+
+  <section id="map" class="panel">
+    <h2>Explore by Location</h2>
+    <p>Click a grid cell to list the species recorded there. Scroll or use the buttons to zoom, and drag to move the map.</p>
+    <div class="controls">
+      <div class="field grow place-field">
+        <label for="place">Go to a place</label>
+        <input id="place" type="search" placeholder="Okinawa, North Sea, Tasmania" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="place-list" aria-autocomplete="list">
+        <ul id="place-list" class="place-list" role="listbox" hidden></ul>
+      </div>
+      <div class="field">
+        <label for="explore-shade">Shade by</label>
+        <select id="explore-shade">
+          <option value="species">Number of species</option>
+          <option value="records">Records</option>
+        </select>
+      </div>
+      <div class="zoom-buttons">
+        <button class="btn" type="button" id="zoom-in">Zoom in</button>
+        <button class="btn" type="button" id="zoom-out">Zoom out</button>
+        <button class="btn" type="button" id="zoom-world">World</button>
+      </div>
+    </div>
+    <figure>
+      <div class="map" id="explore-map"></div>
+      <div class="legend" id="explore-legend"></div>
+      <figcaption>Fish records by 1° grid cell, all years. Source: OBIS. Coastlines: Natural Earth.</figcaption>
+    </figure>
+    <div id="cell-detail" aria-live="polite"></div>
   </section>
 
   <section id="holdings" class="panel">
@@ -103,7 +138,7 @@
 <tr class="z"><td class="d"><a href="downloads/dataset_series.zip">dataset_series.zip</a></td><td>Survey datasets and the series they belong to</td><td class="n">0.0 MB</td><td class="n">0.0 MB</td></tr>
       </table>
     </div></div>
-    <p>Each zip holds one CSV file and an attribution note. Every species record can also be read as JSON at <code>data/species/</code>.</p>
+    <p>Each zip holds one CSV file and an attribution note. Every species record can also be read as JSON at <code>data/species/</code>. File contents are in English.</p>
   </section>
 
   <section id="sources" class="panel">
@@ -117,8 +152,8 @@
       <dd>OBIS measurement records; <a href="https://datras.ices.dk/">ICES Database of Trawl Surveys (DATRAS)</a>, CC BY 4.0.</dd>
       <dt>Taxonomy:</dt>
       <dd><a href="https://www.marinespecies.org/">World Register of Marine Species (WoRMS)</a>; NSF NEON fish taxon list.</dd>
-      <dt>Coastlines:</dt>
-      <dd><a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain.</dd>
+      <dt>Maps:</dt>
+      <dd>Coastlines and place names from <a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain.</dd>
     </dl>
   </section>
 
@@ -126,6 +161,7 @@
     <h2>Disclaimer</h2>
     <p>We make no warranty that records are free of errors. Sampling is uneven across regions and years, and the earliest record of a species is not its original range. Catch is reported by country and FAO fishing area, not by coordinates.</p>
     <p>Names are not yet reconciled across all sources, so one species may appear under more than one name. Users must attribute each source and follow its licence. The OBIS snapshot is for non-commercial use.</p>
+    <p>Japanese text is a translation; scientific names, dataset titles and download files stay in English.</p>
   </section>
 
   <section id="whats-new" class="panel">
@@ -133,6 +169,8 @@
     <div class="scroll"><div class="frame" style="min-width: 420px">
       <table>
         <tr><th scope="col">Date</th><th scope="col">Update</th></tr>
+        <tr><td class="d">2026.11.11</td><td>Added Japanese pages and a language switch in the header.</td></tr>
+        <tr class="z"><td class="d">2026.11.11</td><td>Added a world map of records to the front page, with a place search.</td></tr>
         <tr><td class="d">2026.11.05</td><td>Opened the database website, with a record page for each species.</td></tr>
         <tr class="z"><td class="d">2026.10.30</td><td>Yearly Reef Visual Census datasets were grouped into two series.</td></tr>
         <tr><td class="d">2026.10.30</td><td>Added ICES DATRAS lengths from 28 trawl surveys, 1965 to 2026.</td></tr>
@@ -145,8 +183,12 @@
 </main>
 <footer class="site-footer">(c) McCormack Marine Institute</footer>
 
+<script src="assets/i18n.js"></script>
 <script src="assets/site.js"></script>
+
 <script src="assets/charts.js"></script>
+<script src="assets/map.js"></script>
 <script src="assets/home.js"></script>
+<script src="assets/explore.js"></script>
 </body>
 </html>

@@ -136,3 +136,30 @@ summary { cursor: pointer; }
   .labels dd { margin-bottom: 10px; }
   .site-footer { padding: 12px 16px; }
 }
+
+/* Language switch: set apart from the page buttons by a gap. */
+.site-header .lang-switch { margin-left: 12px; }
+
+/* Japanese pages: system Japanese faces after the Latin ones. */
+:lang(ja) body, body:lang(ja) {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+}
+:lang(ja) .panel, :lang(ja) .tip {
+  font-family: "Times New Roman", Times, "Hiragino Mincho ProN", "Yu Mincho", serif;
+}
+
+/* Explore map */
+.map canvas { touch-action: none; cursor: grab; }
+.map canvas:active { cursor: grabbing; }
+.zoom-buttons { display: flex; gap: 2px; align-items: flex-end; }
+.place-field { position: relative; }
+.place-list {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 6; margin: 0; padding: 0; list-style: none;
+  background: var(--surface); border: 1px solid var(--rule-strong); border-top: 0;
+}
+.place-list li { padding: 2px 6px; cursor: pointer; }
+.place-list li span { color: var(--ink-muted); }
+.place-list li[aria-selected="true"], .place-list li:hover { background: var(--border-subtle); }
+.place-list li.empty { cursor: default; color: var(--ink-muted); }
+#cell-detail h3 { margin-top: 14px; }
+#cell-detail .pager { margin-top: 8px; }

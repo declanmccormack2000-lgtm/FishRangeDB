@@ -1,58 +1,56 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{lang}}" data-root="{{root}}">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Search - FishRangeDB</title>
-<link rel="stylesheet" href="assets/site.css">
+{{head}}
+<title>[[search_title]] - FishRangeDB</title>
 </head>
 <body>
 {{header}}
 <main class="column">
   <div class="page-head">
-    <h1>Search</h1>
-    <p>Find a species by scientific name, genus or family.</p>
+    <h1>[[search_title]]</h1>
+    <p>[[search_tagline]]</p>
   </div>
 
   <form id="search" class="search-form" role="search">
     <div class="field grow">
-      <label for="q">Scientific name or family</label>
+      <label for="q">[[name_or_family]]</label>
       <input id="q" name="q" type="search" placeholder="Gadus morhua" autocomplete="off">
     </div>
     <div class="field">
-      <label for="type">Record type</label>
+      <label for="type">[[record_type]]</label>
       <select id="type" name="type">
-        <option value="">All records</option>
-        <option value="occurrence">Occurrence</option>
-        <option value="catch">Catch</option>
-        <option value="length">Body length</option>
-        <option value="trend">Size trend</option>
+        <option value="">[[all_records]]</option>
+        <option value="occurrence">[[occurrence]]</option>
+        <option value="catch">[[catch]]</option>
+        <option value="length">[[body_length]]</option>
+        <option value="trend">[[size_trend]]</option>
       </select>
     </div>
     <div class="field">
-      <label for="class">Class</label>
-      <select id="class" name="class"><option value="">All classes</option></select>
+      <label for="class">[[class_label]]</label>
+      <select id="class" name="class"><option value="">[[all_classes]]</option></select>
     </div>
     <div class="field">
-      <label for="sort">Sort by</label>
+      <label for="sort">[[sort_by]]</label>
       <select id="sort" name="sort">
-        <option value="">Name</option>
-        <option value="occ">Most occurrence records</option>
-        <option value="catch">Most catch</option>
+        <option value="">[[sort_name]]</option>
+        <option value="occ">[[sort_occ]]</option>
+        <option value="catch">[[sort_catch]]</option>
       </select>
     </div>
-    <button class="btn" type="submit">Search</button>
+    <button class="btn" type="submit">[[search_btn]]</button>
   </form>
 
   <section class="panel" aria-live="polite">
-    <h2>Results</h2>
-    <p id="status">Loading the species list.</p>
+    <h2>[[results_h]]</h2>
+    <p id="status">[[loading_species]]</p>
     <div id="results"></div>
   </section>
   <div id="pager" class="pager"></div>
 </main>
 {{footer}}
-<script src="assets/site.js"></script>
-<script src="assets/search.js"></script>
+{{scripts}}
+<script src="{{root}}assets/search.js"></script>
 </body>
 </html>

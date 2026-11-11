@@ -2,7 +2,7 @@
 
 The public website for FishRangeDB, an archive of fish occurrence, catch and body-length records by the McCormack Marine Institute.
 
-Live site: https://fishrangedb.declanmccormack2000.workers.dev
+Live site: https://fishrangedb.mccormack-marine.workers.dev
 
 It is a static site. Cloudflare Workers Builds deploys the `public/` folder whenever `main` changes (see `wrangler.jsonc`). There is no server and no database behind it: search runs in the browser over `public/data/index.json`, and each species has one JSON file in `public/data/species/`.
 
