@@ -15,8 +15,8 @@
 
   <form id="search" class="search-form" role="search" action="search.html" method="get">
     <div class="field grow">
-      <label for="species-name">[[sci_name]]</label>
-      <input id="species-name" name="q" type="search" placeholder="Gadus morhua">
+      <label for="species-name">[[name_or_family]]</label>
+      <input id="species-name" name="q" type="search" placeholder="[[search_placeholder]]">
     </div>
     <div class="field">
       <label for="record-type">[[record_type]]</label>
@@ -116,6 +116,10 @@
       <dd>[[src_len_dd]]</dd>
       <dt>[[src_tax]]</dt>
       <dd>[[src_tax_dd]]</dd>
+      <dt>[[src_jp]]</dt>
+      <dd>[[src_jp_dd]]</dd>
+      <dt>[[src_names]]</dt>
+      <dd>[[src_names_dd]]</dd>
       <dt>[[src_geo]]</dt>
       <dd>[[src_geo_dd]]</dd>
     </dl>
@@ -133,6 +137,8 @@
     <div class="scroll"><div class="frame" style="min-width: 420px">
       <table>
         <tr><th scope="col">[[col_date]]</th><th scope="col">[[col_update]]</th></tr>
+        <tr><td class="d">2026.11.11</td><td>[[new_names]]</td></tr>
+        <tr class="z"><td class="d">2026.11.11</td><td>[[new_jp_data]]</td></tr>
         <tr><td class="d">2026.11.11</td><td>[[new_ja]]</td></tr>
         <tr class="z"><td class="d">2026.11.11</td><td>[[new_map]]</td></tr>
         <tr><td class="d">2026.11.05</td><td>[[new_site]]</td></tr>

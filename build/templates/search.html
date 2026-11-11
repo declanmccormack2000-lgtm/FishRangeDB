@@ -15,7 +15,7 @@
   <form id="search" class="search-form" role="search">
     <div class="field grow">
       <label for="q">[[name_or_family]]</label>
-      <input id="q" name="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+      <input id="q" name="q" type="search" placeholder="[[search_placeholder]]" autocomplete="off">
     </div>
     <div class="field">
       <label for="type">[[record_type]]</label>
@@ -45,6 +45,7 @@
   <section class="panel" aria-live="polite">
     <h2>[[results_h]]</h2>
     <p id="status">[[loading_species]]</p>
+    <div id="named"></div>
     <div id="results"></div>
   </section>
   <div id="pager" class="pager"></div>

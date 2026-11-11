@@ -63,8 +63,8 @@
     for (let i = 0; i < pairs.length; i += 2) rows.push([index.rows[pairs[i]], pairs[i + 1]]);
     const table = el('div', {}), pager = el('div', { class: 'pager' });
     const render = page => {
-      table.replaceChildren(FRD.table([{ label: t('col_species') }, { label: t('col_family') }, { label: t('col_records'), numeric: true }],
-        rows.slice(page * PAGE, (page + 1) * PAGE).map(([r, n]) => [FRD.speciesLink(r[0]), r[1] || '—', num(n)]), 420));
+      table.replaceChildren(FRD.table([{ label: t('col_species') }, { label: t('col_common') }, { label: t('col_family') }, { label: t('col_records'), numeric: true }],
+        rows.slice(page * PAGE, (page + 1) * PAGE).map(([r, n]) => [FRD.speciesLink(r[0]), FRD.rowCommon(r), r[1] || '—', num(n)]), 560));
       FRD.pager(pager, page, Math.ceil(rows.length / PAGE), render);
     };
     detail.replaceChildren(heading, el('p', {}, t('cell_summary', { records: num(records), species: num(species) })), table, pager);

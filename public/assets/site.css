@@ -163,3 +163,10 @@ summary { cursor: pointer; }
 .place-list li.empty { cursor: default; color: var(--ink-muted); }
 #cell-detail h3 { margin-top: 14px; }
 #cell-detail .pager { margin-top: 8px; }
+
+/* Common names */
+.muted { color: var(--ink-muted); }
+.page-head h1 .common-name { font-weight: 400; }
+.page-head h1 .common-name::before { content: "— "; }
+tr.group th { background: var(--border-subtle); font-weight: 400; text-align: left; }
+#named h3:first-child { margin-top: 0; }

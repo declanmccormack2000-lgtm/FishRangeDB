@@ -28,13 +28,13 @@
 <main class="column">
   <div class="page-head">
     <h1>Search</h1>
-    <p>Find a species by scientific name, genus or family.</p>
+    <p>Find a species by scientific name, common name, genus or family, in English or Japanese.</p>
   </div>
 
   <form id="search" class="search-form" role="search">
     <div class="field grow">
-      <label for="q">Scientific name or family</label>
-      <input id="q" name="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+      <label for="q">Scientific or common name</label>
+      <input id="q" name="q" type="search" placeholder="Gadus morhua, Atlantic cod" autocomplete="off">
     </div>
     <div class="field">
       <label for="type">Record type</label>
@@ -64,6 +64,7 @@
   <section class="panel" aria-live="polite">
     <h2>Results</h2>
     <p id="status">Loading the species list.</p>
+    <div id="named"></div>
     <div id="results"></div>
   </section>
   <div id="pager" class="pager"></div>

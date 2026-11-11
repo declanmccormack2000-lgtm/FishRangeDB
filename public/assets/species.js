@@ -21,8 +21,9 @@
   }
   if (rec.catch) countries = await FRD.json('data/countries.json').catch(() => ({}));
 
-  document.title = `${rec.name} - FishRangeDB`;
-  title.replaceChildren(el('i', {}, rec.name));
+  const [common, level] = (rec.cn || {})[FRD.lang] || [];
+  document.title = `${rec.name}${common && !level ? ` (${common})` : ''} - FishRangeDB`;
+  title.replaceChildren(el('i', {}, rec.name), ...(common ? [' ', el('span', { class: 'common-name' }, FRD.commonName(common, level))] : []));
   sub.textContent = [rec.family, rec.class].filter(Boolean).join(', ') || t('family_unknown');
 
   const panel = (heading, ...kids) => {
@@ -35,6 +36,23 @@
   const [occ, y0, y1] = rec.occ;
   const facts = [];
   const fact = (k, ...v) => facts.push(el('dt', {}, FRD.lang === 'ja' ? `${k}：` : `${k}:`), el('dd', {}, v));
+  /* Common names: the page language first. Genus or family names are marked as such. */
+  const names = rec.names || {};
+  const romaji = names['ja-Latn'] || [];
+  const nameFacts = {
+    en: () => {
+      const [main, lv] = (rec.cn || {}).en || [];
+      if (!main) return;
+      const others = lv ? [] : (names.en || []).filter(n => n !== main);
+      fact(t('names_en'), lv ? FRD.commonName(main, lv) : main, others.length ? t('also', { names: others.slice(0, 12).join(FRD.lang === 'ja' ? '、' : ', ') }) : '');
+    },
+    ja: () => {
+      const [main, lv] = (rec.cn || {}).ja || [];
+      if (!main) return;
+      fact(t('names_ja'), FRD.commonName(main, lv), !lv && romaji.length ? ` (${romaji[0]})` : '');
+    },
+  };
+  (FRD.lang === 'ja' ? ['ja', 'en'] : ['en', 'ja']).forEach(k => nameFacts[k]());
   if (occ) fact(t('occurrence'), t('occ_fact', { n: num(occ), years: FRD.years(y0, y1) }));
   if (rec.catch) {
     const ys = rec.catch.years;

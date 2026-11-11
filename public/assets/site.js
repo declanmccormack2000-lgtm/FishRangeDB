@@ -42,6 +42,19 @@ const FRD = {
   speciesUrl(name) { return `species.html?name=${encodeURIComponent(name).replace(/%20/g, '+')}`; },
   speciesFile(name) { return `${FRD.root}data/species/${name.toLowerCase().replace(/ /g, '_')}.json`; },
   speciesLink(name) { return FRD.el('a', { href: FRD.speciesUrl(name) }, FRD.el('i', {}, name)); },
+  /* Common name in the page language: [name, level] where level is '' (species), 'g' (genus) or 'f' (family). */
+  commonName(name, level) {
+    if (!name) return '—';
+    const mark = level ? FRD.t(level === 'g' ? 'cn_genus' : 'cn_family') : '';
+    return mark ? FRD.el('span', {}, name, FRD.el('span', { class: 'muted' }, mark)) : name;
+  },
+  /* The same for a row of data/index.json: [8,9] English, [10,11] Japanese. */
+  rowCommon(r) { return FRD.lang === 'ja' ? FRD.commonName(r[10], r[11]) : FRD.commonName(r[8], r[9]); },
+  /* Lower case, no accents, no spaces/hyphens, katakana and hiragana alike: for matching names. */
+  fold(s) {
+    return String(s).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/[ぁ-ゖ]/g, ch => String.fromCharCode(ch.charCodeAt(0) + 0x60)).replace(/[\s\-‐'’・]/g, '');
+  },
   async json(path) {
     const url = path.startsWith(FRD.root + 'data/') || /^https?:/.test(path) ? path : FRD.root + path;
     const r = await fetch(url);

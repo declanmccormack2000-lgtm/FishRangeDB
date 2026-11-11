@@ -39,7 +39,9 @@ DOWNLOADS = [('species_spatial_cells.csv', 'Species records by year and 1° cell
              ('species_length_by_year.csv', 'Mean length by species, type and year'),
              ('species_size_trends.csv', 'Change per decade by species and type'),
              ('species_year_source.csv', 'Record counts by species, year and source'),
-             ('dataset_series.csv', 'Survey datasets and the series they belong to')]
+             ('dataset_series.csv', 'Survey datasets and the series they belong to'),
+             ('common_names.csv', 'English and Japanese common names by species'),
+             ('gbif_japan_datasets.csv', 'Japanese datasets used, with licences and counts')]
 ATTRIBUTION = """FishRangeDB data file. McCormack Marine Institute.
 
 Derived from:
@@ -47,6 +49,10 @@ Derived from:
 - FAO FishStat, Global capture production, release 2026.1.0, CC BY 4.0.
 - ICES Database of Trawl Surveys (DATRAS), CC BY 4.0.
 - NSF NEON fish taxon list.
+- Japanese museum and survey datasets published through JBIF/GBIF, CC BY 4.0
+  (list and licences in gbif_japan_datasets.csv).
+- Common names: FishBase release 25.04 (CC BY-NC 4.0), GBIF Backbone Taxonomy (genus names),
+  and Motomura H. et al., List of Japan's all fish species (CC BY 4.0).
 
 Attribute each source and follow its licence. Records show where and when fish were
 sampled. They are not estimates of abundance or native range.
@@ -106,8 +112,69 @@ def load_trends(home, c):
     return rows
 
 
+def common_names(c, species):
+    """Per species: display name per language (species name, else genus, else family) and every name."""
+    group = {(rank, taxon.lower(), lang): name for rank, taxon, lang, name in
+             c.execute('SELECT rank,taxon,lang,name FROM group_names')}
+    every = defaultdict(lambda: defaultdict(list))
+    preferred = {}
+    for sid, lang, name, pref in c.execute(
+            'SELECT species_id,lang,name,preferred FROM vernacular_names ORDER BY species_id,lang,preferred DESC,rowid'):
+        every[sid][lang].append(name)
+        if pref:
+            preferred[(sid, lang)] = name
+    shown = {}
+    for sid, name, _, family in species:
+        for lang in LANGS:
+            genus = name.split(' ')[0].lower()
+            if (sid, lang) in preferred:
+                shown[(sid, lang)] = (preferred[(sid, lang)], '')
+            elif ('genus', genus, lang) in group:
+                shown[(sid, lang)] = (group[('genus', genus, lang)], 'g')
+            elif family and ('family', family.lower(), lang) in group:
+                shown[(sid, lang)] = (group[('family', family.lower(), lang)], 'f')
+    return shown, every, group
+
+
+def write_names(index, species, every, group):
+    """data/names.json for search: [name, kind, taxon, [index rows]], species names shared by several
+    species collected under one entry; genus and family names point to all their species."""
+    position = {r[0]: i for i, r in enumerate(index)}
+    by_species_name = defaultdict(set)
+    by_genus, by_family = defaultdict(set), defaultdict(set)
+    for sid, name, _, family in species:
+        i = position[name]
+        for lang, names in every.get(sid, {}).items():
+            for n in names:
+                # 'Sea bream', 'Seabream' and 'Sea-bream' are one name.
+                by_species_name[re.sub(r'[\s\-‐]', '', n.lower())].add((n, i))
+        by_genus[name.split(' ')[0].lower()].add(i)
+        if family:
+            by_family[family.lower()].add(i)
+    rows = []
+    for key, members in by_species_name.items():
+        uses = defaultdict(int)
+        for n, _ in members:
+            uses[n] += 1
+        spelling = sorted(uses, key=lambda n: (-uses[n], n != n.capitalize(), n))[0]
+        rows.append([spelling, 's', '', sorted({i for _, i in members})])
+    taxon_case = {}
+    for _, name, _, family in species:
+        taxon_case[name.split(' ')[0].lower()] = name.split(' ')[0]
+        if family:
+            taxon_case[family.lower()] = family
+    for (rank, taxon, lang), n in sorted(group.items()):
+        members = (by_genus if rank == 'genus' else by_family).get(taxon)
+        if members:
+            rows.append([n, rank[0], taxon_case.get(taxon, taxon), sorted(members)])
+    rows.sort(key=lambda r: r[0].lower())
+    write_json(PUBLIC / 'data' / 'names.json', {'rows': rows})
+    return len(rows)
+
+
 def build_species(c, trends):
     species = c.execute('SELECT species_id,canonical_name,fish_class,family FROM species').fetchall()
+    shown, every, group = common_names(c, species)
     ids = defaultdict(dict)
     for sid, source, tid in c.execute('SELECT species_id,source,source_taxon_id FROM source_taxa'):
         ids[sid].setdefault(source, tid)
@@ -160,7 +227,9 @@ def build_species(c, trends):
     for sid, name, fish_class, family in species:
         rec = {'name': name, 'class': fish_class or '', 'family': family or ''}
         src = ids[sid]
-        rec['aphia'] = src.get('OBIS') or src.get('ICES') or ''
+        rec['aphia'] = src.get('OBIS') or src.get('GBIF') or src.get('ICES') or ''
+        rec['cn'] = {lang: list(shown[(sid, lang)]) for lang in LANGS if (sid, lang) in shown}
+        rec['names'] = {lang: names[:25] for lang, names in every.get(sid, {}).items()}
         rec['fao'] = src.get('FAO', '')
         rec['neon'] = 'NEON' in src
 
@@ -210,12 +279,14 @@ def build_species(c, trends):
                                *[r['rows'][0][0] for r in rec['len']]) if y is not None]
         hi_year = [y for y in (y1, max(years) if years else None,
                                *[r['rows'][-1][0] for r in rec['len']]) if y is not None]
+        en, ja = shown.get((sid, 'en'), ('', '')), shown.get((sid, 'ja'), ('', ''))
         index.append([name, family or '', classes.index(fish_class) if fish_class else -1, flags, occ,
                       round(sum(years.values())) if years else 0,
-                      min(lo_year) if lo_year else 0, max(hi_year) if hi_year else 0])
+                      min(lo_year) if lo_year else 0, max(hi_year) if hi_year else 0, *en, *ja])
     index.sort(key=lambda r: r[0])
     cellset = build_explore(c, cells, effort, {r[0]: i for i, r in enumerate(index)}, {sid: name for sid, name, _, _ in species})
     write_json(PUBLIC / 'data' / 'index.json', {'classes': classes, 'rows': index})
+    print(f'search names: {write_names(index, species, every, group):,}')
 
     flat = defaultdict(list)
     for (d, la, lo), n in sorted(effort.items()):
@@ -367,6 +438,10 @@ def holdings(c):
     for src, label in (('OBIS', 'OBIS'), ('ICES', 'ICES DATRAS')):
         rows, sp, y0, y1 = q(f"SELECT SUM(records),COUNT(DISTINCT species_id),MIN(year),MAX(year) FROM length_stats WHERE source='{src}'")
         out.append(('Body length', label, rows, sp, f'{y0}–{y1}'))
+    rows, sp, y0, y1 = q("""SELECT (SELECT SUM(accepted) FROM imports WHERE source='GBIF' AND kind='occurrence'),
+                            COUNT(DISTINCT species_id),MIN(year),MAX(year) FROM coverage WHERE source='GBIF' AND occurrence_n>0""")
+    if rows:
+        out.insert(1, ('Occurrence', 'GBIF (Japanese collections)', rows, sp, f'{y0}–{y1}'))
     rows, sp = q("SELECT COUNT(*),COUNT(DISTINCT species_id) FROM source_taxa WHERE source='NEON'")
     out.append(('Checklist', 'NSF NEON', rows, sp, '—'))
     return out
@@ -382,6 +457,8 @@ def render(trends, c, downloads, species_count):
     for x in trends:
         counts[x['trend']] += 1
     held = holdings(c)
+    gbif = c.execute("""SELECT COUNT(*),SUM(accepted) FROM imports WHERE source='GBIF' AND kind='occurrence' AND accepted>0""").fetchone()
+    gbif_species = c.execute("SELECT COUNT(DISTINCT species_id) FROM coverage WHERE source='GBIF'").fetchone()[0]
     groups = c.execute("SELECT SUM(rejected) FROM imports WHERE source='FAO'").fetchone()[0]
     y0 = min(int(h[4][:4]) for h in held if h[4] != '—')
     y1 = max(int(h[4][-4:]) for h in held if h[4] != '—')
@@ -400,8 +477,9 @@ def render(trends, c, downloads, species_count):
         label = (lambda v: v) if lang == 'en' else (lambda v: HOLDINGS.get(v, v))
         values = {
             'species': fmt(species_count), 'year_first': str(y0), 'year_last': str(y1),
-            'holdings_rows': rows_html([[td(label(h[0])), td(h[1]), td(fmt(h[2]), 'n'), td(fmt(h[3]), 'n'), td(h[4], 'n')] for h in held]),
+            'holdings_rows': rows_html([[td(label(h[0])), td(label(h[1])), td(fmt(h[2]), 'n'), td(fmt(h[3]), 'n'), td(h[4], 'n')] for h in held]),
             'group_rows': fmt(groups or 0),
+            'gbif_datasets': fmt(gbif[0]), 'gbif_records': fmt(gbif[1] or 0), 'gbif_species': fmt(gbif_species),
             'estimates': fmt(len(trends)), 'trend_species': fmt(len({x['canonical_name'] for x in trends})),
             'decreasing': fmt(counts['decreasing']), 'increasing': fmt(counts['increasing']),
             'no_change': fmt(counts['no clear change']),
@@ -445,8 +523,22 @@ def check(c, values):
     total = sum(p.stat().st_size for p in PUBLIC.rglob('*') if p.is_file())
     count = sum(1 for p in PUBLIC.rglob('*') if p.is_file())
     assert (PUBLIC / 'ja' / 'index.html').exists(), 'Japanese pages missing'
+    names = json.loads((PUBLIC / 'data' / 'names.json').read_text(encoding='utf-8'))['rows']
+    assert all(0 <= i < len(rows) for r in names for i in r[3]), 'names.json points outside the index'
+    assert all(p.stat().st_size < 25 * 2**20 for p in PUBLIC.rglob('*') if p.is_file()), 'a file is over 25 MiB'
     assert count < 20000, 'over the Cloudflare free-plan file limit'
     print(f'checked: {len(rows):,} species, {count:,} files, {total / 1e6:.1f} MB in public/')
+
+
+def remove_tree(path):
+    """rmtree, retried: on Windows a file held open for a moment (preview server, antivirus) fails it."""
+    import time
+    for attempt in range(10):
+        shutil.rmtree(path, ignore_errors=True)
+        if not path.exists():
+            return
+        time.sleep(1 + attempt)
+    raise SystemExit(f'Could not remove {path}; close programs using it and run again.')
 
 
 def main():
@@ -455,9 +547,8 @@ def main():
     a = ap.parse_args()
     db = a.home / 'database' / 'fishrange.sqlite'
     c = sqlite3.connect(f'file:{db.as_posix()}?mode=ro', uri=True)
-    shutil.rmtree(PUBLIC / 'data', ignore_errors=True)
-    shutil.rmtree(PUBLIC / 'downloads', ignore_errors=True)
-    shutil.rmtree(PUBLIC / 'ja', ignore_errors=True)
+    for folder in ('data', 'downloads', 'ja'):
+        remove_tree(PUBLIC / folder)
     (PUBLIC / 'data').mkdir(parents=True)
 
     trends = load_trends(a.home, c)

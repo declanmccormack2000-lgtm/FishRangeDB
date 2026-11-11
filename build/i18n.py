@@ -70,8 +70,8 @@ STRINGS = {
     'zoom_in': ('Zoom in', '拡大'),
     'zoom_out': ('Zoom out', '縮小'),
     'world': ('World', '世界'),
-    'map_caption': ('Fish records by 1° grid cell, all years. Source: OBIS. Coastlines: Natural Earth.',
-                    '1°格子ごとの魚類の記録（全期間）。出典：OBIS。海岸線：Natural Earth。'),
+    'map_caption': ('Fish records by 1° grid cell, all years. Sources: OBIS and GBIF (Japanese collections). Coastlines: Natural Earth.',
+                    '1°格子ごとの魚類の記録（全期間）。出典：OBIS、GBIF（日本の標本コレクション）。海岸線：Natural Earth。'),
     'holdings_h': ('Holdings', '収録データ'),
     'col_record_type': ('Record type', '記録の種類'),
     'col_source': ('Source', '出典'),
@@ -103,20 +103,29 @@ STRINGS = {
     'src_tax': ('Taxonomy:', '分類：'),
     'src_tax_dd': ('<a href="https://www.marinespecies.org/">World Register of Marine Species (WoRMS)</a>; NSF NEON fish taxon list.',
                    '<a href="https://www.marinespecies.org/">世界海洋生物種登録簿（WoRMS）</a>、NSF NEON 魚類分類群リスト。'),
+    'src_jp': ('Japanese collections:', '日本の標本・観察記録：'),
+    'src_jp_dd': ('{{gbif_datasets}} marine fish datasets from Japanese museums, universities and JAMSTEC, published through <a href="https://www.gbif.jp/">JBIF</a> and <a href="https://www.gbif.org/">GBIF</a>, all CC BY 4.0. Freshwater collections and records already in OBIS are left out. The full list is in <code>gbif_japan_datasets.csv</code>.',
+                  '日本の博物館・大学・JAMSTEC が <a href="https://www.gbif.jp/">JBIF</a> と <a href="https://www.gbif.org/">GBIF</a> で公開している海産魚類のデータセット {{gbif_datasets}} 件、いずれも CC BY 4.0。淡水魚の標本コレクションと、OBIS に既にある記録は除いています。一覧は <code>gbif_japan_datasets.csv</code> にあります。'),
+    'src_names': ('Common names:', '一般名：'),
+    'src_names_dd': ('English names from <a href="https://www.fishbase.se/">FishBase</a> (release 25.04, CC BY-NC 4.0) and, for genera, the GBIF Backbone Taxonomy. Japanese standard names from Motomura, H. et al., <a href="https://www.gbif.org/dataset/fc9f3151-5c89-4354-a8a7-9f35d7fc608f">List of Japan’s all fish species</a> (CC BY 4.0).',
+                     '英名は <a href="https://www.fishbase.se/">FishBase</a>（リリース 25.04、CC BY-NC 4.0）と、属名について GBIF Backbone Taxonomy。標準和名は本村浩之ほか<a href="https://www.gbif.org/dataset/fc9f3151-5c89-4354-a8a7-9f35d7fc608f">「日本産魚類全種の学名」</a>（CC BY 4.0）。'),
     'src_geo': ('Maps:', '地図：'),
     'src_geo_dd': ('Coastlines and place names from <a href="https://www.naturalearthdata.com/">Natural Earth</a>, public domain.',
                    '海岸線と地名は <a href="https://www.naturalearthdata.com/">Natural Earth</a>（パブリックドメイン）。'),
     'disclaimer_h': ('Disclaimer', '免責事項'),
     'disc_p1': ('We make no warranty that records are free of errors. Sampling is uneven across regions and years, and the earliest record of a species is not its original range. Catch is reported by country and FAO fishing area, not by coordinates.',
                 '記録に誤りがないことは保証しません。採集は地域や年によって偏りがあり、ある種の最も古い記録がその本来の分布域を示すわけではありません。漁獲は座標ではなく、国と FAO 漁区ごとに報告されています。'),
-    'disc_p2': ('Names are not yet reconciled across all sources, so one species may appear under more than one name. Users must attribute each source and follow its licence. The OBIS snapshot is for non-commercial use.',
-                '学名はまだすべての出典間で統一されていないため、同じ種が複数の名前で現れることがあります。利用者は各出典を明記し、そのライセンスに従う必要があります。OBIS のスナップショットは非商用利用に限られます。'),
+    'disc_p2': ('Scientific names are matched to WoRMS, and species found under two names have been merged, but a few may remain. Where a species has no well-attested common name, the page shows the genus name, then the family name, marked as such. Users must attribute each source and follow its licence. The OBIS snapshot and FishBase are for non-commercial use.',
+                '学名は WoRMS に照合し、二つの名前で登録されていた種は統合しましたが、一部が残っている可能性があります。広く使われている一般名がない種には、属名、次に科名を示し、その旨を表示します。利用者は各出典を明記し、そのライセンスに従う必要があります。OBIS のスナップショットと FishBase は非商用利用に限られます。'),
     'disc_p3': ('Japanese text is a translation; scientific names, dataset titles and download files stay in English.',
                 '日本語の文章は翻訳です。学名、データセット名、ダウンロードファイルは英語のままです。'),
     'new_h': ("What's New", '更新情報'),
     'col_date': ('Date', '日付'),
     'col_update': ('Update', '内容'),
     'new_ja': ('Added Japanese pages and a language switch in the header.', '日本語ページとヘッダーの言語切り替えを追加しました。'),
+    'new_jp_data': ('Added {{gbif_records}} records of {{gbif_species}} species from {{gbif_datasets}} Japanese fish collections and surveys, and merged species that were listed under two names.',
+                    '日本の魚類コレクション・調査 {{gbif_datasets}} 件から {{gbif_species}} 種 {{gbif_records}} 件の記録を追加し、二つの名前で登録されていた種を統合しました。'),
+    'new_names': ('Added English and Japanese common names to species pages and search.', '種のページと検索に英名と和名を追加しました。'),
     'new_map': ('Added a world map of records to the front page, with a place search.', 'トップページに記録の世界地図と地名検索を追加しました。'),
     'new_site': ('Opened the database website, with a record page for each species.', 'データベースのウェブサイトを公開し、種ごとの記録ページを設けました。'),
     'new_series': ('Yearly Reef Visual Census datasets were grouped into two series.', '年ごとの Reef Visual Census データセットを2つのシリーズにまとめました。'),
@@ -127,8 +136,10 @@ STRINGS = {
 
     # Search page
     'search_title': ('Search', '検索'),
-    'search_tagline': ('Find a species by scientific name, genus or family.', '学名、属名、科名で種を探します。'),
-    'name_or_family': ('Scientific name or family', '学名または科名'),
+    'search_tagline': ('Find a species by scientific name, common name, genus or family, in English or Japanese.',
+                       '学名、和名、英名、属名、科名で種を探します。'),
+    'name_or_family': ('Scientific or common name', '学名・和名・英名'),
+    'search_placeholder': ('Gadus morhua, Atlantic cod', 'マダイ、Pagrus major'),
     'class_label': ('Class', '綱'),
     'all_classes': ('All classes', 'すべての綱'),
     'sort_by': ('Sort by', '並べ替え'),
@@ -154,7 +165,8 @@ STRINGS = {
     'loading_record': ('Loading the record.', '記録を読み込んでいます。'),
 }
 
-HOLDINGS = {'Occurrence': '出現', 'Catch': '漁獲', 'Body length': '体長', 'Checklist': 'チェックリスト'}
+HOLDINGS = {'Occurrence': '出現', 'Catch': '漁獲', 'Body length': '体長', 'Checklist': 'チェックリスト',
+            'GBIF (Japanese collections)': 'GBIF（日本の標本コレクション・調査）'}
 DOWNLOAD_LABELS = {
     'species_spatial_cells.csv': '種ごとの記録数（年・1°格子別）',
     'effort_cells.csv': '全魚類の記録数（年・1°格子別）',
@@ -164,6 +176,8 @@ DOWNLOAD_LABELS = {
     'species_size_trends.csv': '種・体長の種類別の10年あたりの変化',
     'species_year_source.csv': '種・年・出典別の記録数',
     'dataset_series.csv': '調査データセットと所属するシリーズ',
+    'common_names.csv': '種ごとの英名と和名',
+    'gbif_japan_datasets.csv': '使用した日本のデータセット（ライセンスと件数）',
 }
 
 

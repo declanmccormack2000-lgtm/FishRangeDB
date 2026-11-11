@@ -28,13 +28,13 @@
 <main class="column">
   <div class="page-head">
     <h1>検索</h1>
-    <p>学名、属名、科名で種を探します。</p>
+    <p>学名、和名、英名、属名、科名で種を探します。</p>
   </div>
 
   <form id="search" class="search-form" role="search">
     <div class="field grow">
-      <label for="q">学名または科名</label>
-      <input id="q" name="q" type="search" placeholder="Gadus morhua" autocomplete="off">
+      <label for="q">学名・和名・英名</label>
+      <input id="q" name="q" type="search" placeholder="マダイ、Pagrus major" autocomplete="off">
     </div>
     <div class="field">
       <label for="type">記録の種類</label>
@@ -64,6 +64,7 @@
   <section class="panel" aria-live="polite">
     <h2>結果</h2>
     <p id="status">種の一覧を読み込んでいます。</p>
+    <div id="named"></div>
     <div id="results"></div>
   </section>
   <div id="pager" class="pager"></div>
