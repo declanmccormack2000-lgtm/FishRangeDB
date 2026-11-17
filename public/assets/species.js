@@ -19,7 +19,7 @@
   } catch (e) {
     return notFound(t('no_record', { name }));
   }
-  if (rec.catch) countries = await FRD.json('data/countries.json').catch(() => ({}));
+  if (rec.catch || (rec.media || []).some(m => m.country)) countries = await FRD.json('data/countries.json').catch(() => ({}));
 
   const [common, level] = (rec.cn || {})[FRD.lang] || [];
   document.title = `${rec.name}${common && !level ? ` (${common})` : ''} - FishRangeDB`;
@@ -72,6 +72,22 @@
   fact(t('this_record'), el('a', { href: FRD.speciesFile(rec.name) }, 'JSON'));
   panel(t('summary'), el('dl', { class: 'labels' }, facts));
 
+  /* Footnotes: every source used on the page, numbered in order of first use. */
+  const notes = [], noteNumber = new Map();
+  function cite(key, make) {
+    if (!noteNumber.has(key)) { notes.push(make()); noteNumber.set(key, notes.length); }
+    const n = noteNumber.get(key);
+    return el('sup', { class: 'fn' }, el('a', { href: `#fn-${n}`, 'aria-label': t('note_n', { n }) }, String(n)));
+  }
+  const link = (href, text) => el('a', { href, rel: 'noopener' }, text);
+  const fbCode = (rec.facts || {}).fb;
+  const citeDb = () => cite('db', () => [t('fn_db'), ' ', link(`${FRD.root}index.html#sources`, t('data_sources'))]);
+  const citeFb = () => cite('fb', () => [t('fn_fb'), ' ', link(`https://www.fishbase.se/summary/${fbCode}`, `fishbase.se/summary/${fbCode}`)]);
+  const citeIucn = () => cite('iucn', () => [t('fn_iucn'), ' ', link(`https://www.iucnredlist.org/search?query=${encodeURIComponent(rec.name)}&searchType=species`, 'iucnredlist.org')]);
+  const citeFao = () => cite('fao', () => [t('fn_fao'), ' ', link('https://www.fao.org/fishery/en/fishstat', 'fao.org/fishery/en/fishstat')]);
+
+  picturesPanel();
+  aboutPanel();
   rangePanel();
   lengthPanel();
   catchPanel();
@@ -276,5 +292,121 @@
 
   if (!occ && !rec.catch && !rec.len.length) {
     panel(t('records_h'), el('p', {}, t('checklist_only')));
+  }
+  if (notes.length) {
+    panel(t('notes_h'), el('ol', { class: 'footnotes' }, notes.map((n, i) => el('li', { id: `fn-${i + 1}` }, n))));
+  }
+
+  /* ---- Pictures: old illustrations and specimen photos, shown from their hosts, unedited. ---- */
+  function picturesPanel() {
+    const media = rec.media || [];
+    if (!media.length) return;
+    const shortWork = m => {
+      const w = (m.w || '').replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim();
+      const host = ((m.w || '').match(/https?:\/\/(?:www\.)?([^/\s]+)/) || [])[1] || '';
+      return (w.length > 3 ? w : (m.cr || host)).slice(0, 110) + ((w.length > 110) ? '…' : '');
+    };
+    const figures = media.map(m => {
+      let caption;
+      if (m.k === 'illustration') {
+        const what = m.via
+          ? [t(m.via[0] === 'g' ? 'ill_genus' : 'ill_family', { taxon: m.via[1] }), ' ', el('i', {}, m.via[2])]
+          : [t('ill_species', { year: m.d || '?' }), m.m ? [' ', t('drawn_as'), ' ', el('i', {}, m.m)] : []];
+        const source = shortWork(m);
+        caption = [what, source ? [FRD.lang === 'ja' ? '。出典：' : '. From ', source] : '', FRD.lang === 'ja' ? '' : '.',
+          cite(m.p, () => [`${m.ti}. `, m.cr ? `${m.cr}. ` : '', m.w ? `${m.w}. ` : '', `${m.l}. `, t('via_commons'), ' ', link(m.p, t('file_page'))])];
+      } else {
+        const kind = m.basis === 'MATERIAL_SAMPLE' ? t('sample_photo') : t('specimen_photo');
+        const ja = FRD.lang === 'ja';
+        const where = [m.i, m.c].filter(Boolean).join(' ');
+        const bits = [m.type ? t('type_status', { type: m.type.toLowerCase() }) : '', m.d ? t('collected', { year: m.d }) : '',
+          countryByName(m.country)].filter(Boolean).join(ja ? '、' : ', ');
+        caption = [kind, where ? (ja ? `：${where}` : `: ${where}`) : '', bits ? (ja ? `（${bits}）` : ` (${bits})`) : '', ja ? '。GBIF より' : '. Via GBIF.',
+          cite(m.p, () => [where ? `${where}. ` : '', m.ti ? `${m.ti}. ` : '', m.cr ? `${t('photo_by')} ${m.cr}. ` : '', `${m.l}. `,
+            t('via_gbif'), ' ', link(m.p, m.p.replace('https://www.', ''))])];
+      }
+      const img = el('img', { src: m.t, alt: t(m.k === 'illustration' ? 'alt_ill' : 'alt_spec', { name: m.via ? m.via[2] : rec.name }),
+        loading: 'lazy', decoding: 'async', referrerpolicy: 'no-referrer' });
+      img.addEventListener('error', () => img.closest('figure').remove());
+      return el('figure', { class: 'picture' }, el('a', { href: m.p, rel: 'noopener' }, img), el('figcaption', {}, caption));
+    });
+    panel(t('pictures_h'), el('div', { class: 'pictures' }, figures),
+      el('p', { class: 'muted small' }, t('pictures_note')));
+  }
+
+  /* GBIF gives countries by English name; show the Japanese name where the country list has it. */
+  function countryByName(name) {
+    if (!name || FRD.lang !== 'ja') return name || '';
+    const key = name.toLowerCase();
+    const hit = Object.values(countries).find(n => n[0].toLowerCase() === key);
+    return hit ? hit[1] : name;
+  }
+
+  /* ---- About: observed range, lifestyle, human impact, each with its sources. ---- */
+  function aboutPanel() {
+    const f = rec.facts || {}, h = f.hab || {}, u = f.use || {};
+    const ja = FRD.lang === 'ja';
+    const V = (group, v) => FRD.t(`v_${group}_${String(v).replace(/[^a-z0-9]+/gi, '_').toLowerCase()}`);
+    const list = xs => xs.join(ja ? '、' : '; ');
+    const sp = ja ? '' : ' ';   // Japanese sentences are not separated by spaces
+    const sections = [];
+
+    // Range
+    const range = [];
+    if (rec.dec.length) {
+      const lat = [];
+      const cells = new Set();
+      rec.dec.forEach(d => { for (let i = 0; i < d.cells.length; i += 3) { lat.push([d.cells[i] - 89.5, d.cells[i + 2]]); cells.add(`${d.cells[i]},${d.cells[i + 1]}`); } });
+      lat.sort((a, b) => a[0] - b[0]);
+      const total = lat.reduce((s, x) => s + x[1], 0);
+      const pct = p => { let acc = 0; for (const [v, n] of lat) { acc += n; if (acc >= p * total) return v; } return lat[lat.length - 1][0]; };
+      const lo = pct(0.05), hi = pct(0.95);
+      range.push(t('obs_range', { lo: FRD.lat(lo), hi: FRD.lat(hi), cells: num(cells.size), y0: rec.occ[1], y1: rec.occ[2] }), citeDb());
+    } else if (occ) {
+      range.push(t('obs_nocoords', { n: num(occ) }), citeDb());
+    }
+    if (f.areas && f.areas.length) {
+      const names = f.areas.map(a => { const k = String(a).padStart(2, '0'); return (ja ? FRD_AREAS_JA : FRD_AREAS_EN)[k] || k; });
+      range.push(sp, t('native_areas', { areas: list(names) }), citeFb());
+    }
+    if (range.length) sections.push([t('about_range'), range]);
+
+    // Lifestyle
+    if (Object.keys(h).length) {
+      const kind = [h.climate ? V('climate', h.climate) : '', h.zone ? V('zone', h.zone) : ''].filter(Boolean);
+      const water = (h.water || []).map(w => V('water', w));
+      const life = [];
+      life.push(t('life_kind', { kind: kind.join(ja ? 'の' : ' ') || t('a_fish'), water: water.length ? list(water) : '—' }).replace(/^./, c => c.toUpperCase()));
+      if (h.depth) life.push(sp, h.depth[1] != null ? t('life_depth', { a: h.depth[0] ?? 0, b: h.depth[1] }) : t('life_depth_from', { a: h.depth[0] }));
+      if (h.maxlen) life.push(sp, t('life_length', { cm: num(h.maxlen[0]), type: t(`lenp_${h.maxlen[1] || 'x'}`) }));
+      if (h.migration) life.push(sp, t('life_migration', { kind: V('migration', h.migration) }));
+      life.push(citeFb());
+      sections.push([t('about_life'), life]);
+    }
+
+    // Human impact
+    const people = [];
+    const uses = [];
+    if (u.fisheries) uses.push(V('fisheries', u.fisheries));
+    if (u.aquaculture) uses.push(V('aquaculture', u.aquaculture));
+    if (u.aquarium) uses.push(V('aquarium', u.aquarium));
+    if (u.game) uses.push(t('v_game'));
+    if (uses.length) people.push(t('use_list', { uses: list(uses) }), citeFb());
+    if (u.danger) people.push(sp, t('danger', { what: V('danger', u.danger) }), citeFb());
+    if (rec.catch) {
+      const ys = rec.catch.years;
+      people.push(sp, t('caught', { t: FRD.tonnes(rec.catch.t), years: FRD.years(ys[0][0], ys[ys.length - 1][0]) }), citeFao());
+    }
+    if (f.iucn) people.push(sp, t('iucn', { cat: V('iucn', f.iucn[0]), year: f.iucn[1] || '?' }), citeIucn());
+    if (f.cites) people.push(sp, t('cites', { app: f.cites }), citeFb());
+    if (f.intro) {
+      const why = (f.intro[2] || []).map(r => V('reason', r));
+      people.push(sp, t('introduced', { n: num(f.intro[0]), est: num(f.intro[1]) }),
+        why.length ? t('introduced_why', { why: list(why) }) : (ja ? '。' : '.'), citeFb());
+    }
+    sections.push([t('about_people'), people.length ? people : [t('no_people_info')]]);
+
+    panel(t('about_h'), el('dl', { class: 'labels about' }, sections.flatMap(([k, v]) =>
+      [el('dt', {}, ja ? `${k}：` : `${k}:`), el('dd', {}, v)])));
   }
 })();

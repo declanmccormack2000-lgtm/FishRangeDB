@@ -172,9 +172,49 @@ def write_names(index, species, every, group):
     return len(rows)
 
 
+def species_media(c, species):
+    """Pictures per species. A species with no illustration of its own borrows one of another species
+    in its genus, or else its family, marked as such (via = ['g'|'f', genus or family, species shown])."""
+    name_of = {sid: name for sid, name, _, _ in species}
+    own = defaultdict(list)
+    for (sid, kind, pos, thumb, page, title, creator, date, work, lic, inst, cat, matched, source) in c.execute(
+            'SELECT * FROM media ORDER BY species_id,kind,position'):
+        item = {'k': kind, 't': thumb, 'p': page, 'ti': title, 'cr': creator, 'd': date, 'l': lic, 's': source}
+        if kind == 'illustration':
+            item['w'] = work
+            if matched and matched.lower() != name_of.get(sid, '').lower():
+                item['m'] = matched          # drawn under an older name
+        else:
+            item.update(json.loads(work or '{}'), i=inst, c=cat)
+        own[sid].append(item)
+    by_genus, by_family = defaultdict(list), defaultdict(list)
+    for sid, name, _, family in sorted(species, key=lambda r: r[1]):
+        first = next((m for m in own.get(sid, ()) if m['k'] == 'illustration'), None)
+        if first:
+            by_genus[name.split(' ')[0]].append((name, first))
+            if family:
+                by_family[family].append((name, first))
+    out = {}
+    for sid, name, _, family in species:
+        items = list(own.get(sid, ()))
+        if not any(m['k'] == 'illustration' for m in items):
+            genus = name.split(' ')[0]
+            if by_genus.get(genus):
+                other, m = by_genus[genus][0]
+                items.insert(0, dict(m, via=['g', genus, other]))
+            elif family and by_family.get(family):
+                other, m = by_family[family][0]
+                items.insert(0, dict(m, via=['f', family, other]))
+        if items:
+            out[sid] = items
+    return out
+
+
 def build_species(c, trends):
     species = c.execute('SELECT species_id,canonical_name,fish_class,family FROM species').fetchall()
     shown, every, group = common_names(c, species)
+    pictures = species_media(c, species)
+    facts = {sid: json.loads(f) for sid, f in c.execute('SELECT species_id,facts FROM species_facts')}
     ids = defaultdict(dict)
     for sid, source, tid in c.execute('SELECT species_id,source,source_taxon_id FROM source_taxa'):
         ids[sid].setdefault(source, tid)
@@ -230,6 +270,10 @@ def build_species(c, trends):
         rec['aphia'] = src.get('OBIS') or src.get('GBIF') or src.get('ICES') or ''
         rec['cn'] = {lang: list(shown[(sid, lang)]) for lang in LANGS if (sid, lang) in shown}
         rec['names'] = {lang: names[:25] for lang, names in every.get(sid, {}).items()}
+        if sid in pictures:
+            rec['media'] = pictures[sid]
+        if sid in facts:
+            rec['facts'] = facts[sid]
         rec['fao'] = src.get('FAO', '')
         rec['neon'] = 'NEON' in src
 

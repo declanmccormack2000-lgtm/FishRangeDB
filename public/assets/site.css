@@ -170,3 +170,16 @@ summary { cursor: pointer; }
 .page-head h1 .common-name::before { content: "— "; }
 tr.group th { background: var(--border-subtle); font-weight: 400; text-align: left; }
 #named h3:first-child { margin-top: 0; }
+
+/* Species pictures, notes and footnotes */
+.pictures { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.picture { margin: 0; }
+.picture img { display: block; width: 100%; height: auto; max-height: 260px; object-fit: contain; background: var(--border-subtle); }
+.picture figcaption { font-size: 13px; line-height: 1.35; }
+.small { font-size: 14px; }
+sup.fn { font-size: 11px; line-height: 0; margin-left: 1px; }
+sup.fn a { text-decoration: none; }
+ol.footnotes { margin: 0; padding-left: 24px; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+ol.footnotes li { margin-bottom: 4px; }
+ol.footnotes li:target { background: var(--surface-mint); }
+.labels.about dd { margin-bottom: 6px; }
